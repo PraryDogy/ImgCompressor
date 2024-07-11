@@ -2,10 +2,10 @@ import os
 import sys
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (QApplication, QFileDialog, QFrame, QHBoxLayout,
-                             QLabel, QLineEdit, QMessageBox, QPushButton,
-                             QScrollArea, QSpacerItem, QVBoxLayout, QWidget)
+from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
+from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
+                             QLineEdit, QMessageBox, QPushButton, QScrollArea,
+                             QVBoxLayout, QWidget)
 
 from util import CompressThread
 
@@ -25,12 +25,13 @@ class DynamicWidget(QWidget):
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_wid.setLayout(left_layout)
 
-        left_lbl = QLabel(f" Если имя папки как указано ниже")
+        left_lbl = QLabel(f" Если имя папки РАВНОЗНАЧНО")
         left_layout.addWidget(left_lbl)
 
         self.left_input = QLineEdit()
         self.left_input.setFixedHeight(30)
         self.left_input.setPlaceholderText("Напишите имя папки")
+        self.left_input.setStyleSheet("padding-left: 5px;")
         left_layout.addWidget(self.left_input)
 
         right_wid = QWidget()
@@ -45,6 +46,7 @@ class DynamicWidget(QWidget):
         self.right_input = QLineEdit()
         self.right_input.setFixedHeight(30)
         self.right_input.setPlaceholderText("Напишите размер в килобайтах")
+        self.right_input.setStyleSheet("padding-left: 5px;")
         right_layout.addWidget(self.right_input)
 
     def get_data(self):
@@ -70,6 +72,7 @@ class MyApp(QWidget):
         self.initUI()
 
     def initUI(self):
+        self.setAcceptDrops(True)
         self.setWindowTitle('Image Compressor')
         self.setMinimumSize(560, 400)
         self.resize(560, 400)
@@ -151,7 +154,7 @@ class MyApp(QWidget):
     def my_sep(self):
         sep = QFrame()
         sep.setFixedHeight(1)
-        sep.setStyleSheet("background-color: black")
+        sep.setStyleSheet("background-color: black;")
         return sep
 
     def add_btn_cmd(self):
@@ -163,15 +166,27 @@ class MyApp(QWidget):
         remove_btn.setFixedWidth(200)
         self.scroll_v_layout.insertWidget(1, remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        sep = self.my_sep()
-        self.scroll_v_layout.insertWidget(2, sep)
+        above_frame = QFrame()
+        above_frame.setFixedHeight(10)
+        self.scroll_v_layout.insertWidget(2, above_frame)
 
-        remove_btn.clicked.connect(lambda: self.remove_btn_cmd([wid, remove_btn, sep]))
+        sep = self.my_sep()
+        self.scroll_v_layout.insertWidget(3, sep)
+
+        below_frame = QFrame()
+        below_frame.setFixedHeight(10)
+        self.scroll_v_layout.insertWidget(4, below_frame)
+
+        wids = [wid, remove_btn, above_frame, sep, below_frame]
+        remove_btn.clicked.connect(lambda: self.remove_btn_cmd(wids))
 
     def remove_btn_cmd(self, widgets: list[QWidget]):
         self.statement_widgets.remove(widgets[0])
         for i in widgets:
-            i.deleteLater()
+            try:
+                i.deleteLater()
+            except Exception:
+                pass
 
     def start_btn_start_cmd(self):
         if not self.statement_widgets:
@@ -233,3 +248,19 @@ class MyApp(QWidget):
         msg.setGeometry(geo)
 
         msg.exec_()
+
+    def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
+        if a0.mimeData().hasUrls():
+            a0.acceptProposedAction()
+        return super().dragEnterEvent(a0)
+    
+    def dragLeaveEvent(self, a0: QDragLeaveEvent | None) -> None:
+        return super().dragLeaveEvent(a0)
+
+    def dropEvent(self, a0: QDropEvent | None) -> None:
+        path = a0.mimeData().urls()[0].toLocalFile()
+        if os.path.isdir(path):
+            self.browse_label_path.setWordWrap(True)
+            self.browse_label_path.setText(path)
+            self.my_path = path
+            return super().dropEvent(a0)
