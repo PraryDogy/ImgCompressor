@@ -52,7 +52,8 @@ class DynamicWidget(QWidget):
     def get_data(self):
         try:
             right_input_value = int(self.right_input.text().strip())
-        except ValueError as e:
+            right_input_value = right_input_value - 5
+        except Exception as e:
             return None
         
         left_input_value = self.left_input.text().strip()
