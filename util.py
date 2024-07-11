@@ -1,10 +1,45 @@
 import os
-from PIL import Image
 from PyQt5.QtCore import QThread, pyqtSignal
-
+import cv2
 
 class Shared:
     flag = True
+
+
+class CompressUtils:
+
+    # @staticmethod
+    # def resize_image(image_path: str, max_size_kb: int):
+    #     current_size_kb = os.path.getsize(image_path) / 1024.0
+    #     if current_size_kb <= max_size_kb:
+    #         return
+
+    #     img = Image.open(image_path)
+    #     quality = 95
+
+    #     while True:
+    #         img.save(image_path, optimize=True, quality=quality)
+    #         if os.path.getsize(image_path) <= max_size_kb * 1024 or quality <= 10:
+    #             break
+            # quality -= 5
+
+    @staticmethod
+    def resize_image(image_path: str, max_size_kb: int):
+        current_size_kb = os.path.getsize(image_path) / 1024.0
+        if current_size_kb <= max_size_kb:
+            return
+
+        img = cv2.imread(image_path)
+        quality = 95
+
+        while True:
+            encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
+            _, buffer = cv2.imencode('.jpg', img, encode_param)
+            with open(image_path, 'wb') as f:
+                f.write(buffer)
+            if os.path.getsize(image_path) <= max_size_kb * 1024 or quality <= 10:
+                break
+            quality -= 5
 
 
 class CompressThread(QThread):
@@ -29,20 +64,6 @@ class CompressThread(QThread):
     def force_cancel_cmd(self):
         Shared.flag = False
 
-    def resize_image(self, image_path: str, max_size_kb: int):
-        current_size_kb = os.path.getsize(image_path) / 1024.0
-        if current_size_kb <= max_size_kb:
-            return
-
-        img = Image.open(image_path)
-        quality = 95
-
-        while True:
-            img.save(image_path, optimize=True, quality=quality)
-            if os.path.getsize(image_path) <= max_size_kb * 1024 or quality <= 10:
-                break
-            quality -= 5
-
     def process_images(self, root_dir: str, data: list[dict]):
         """
         [ {"folder_name": str, "file_size": int}, ... ]
@@ -62,7 +83,7 @@ class CompressThread(QThread):
                     for data_dict in data:
                         if os.sep + data_dict["folder_name"] + os.sep in image_path:
                             try:
-                                self.resize_image(image_path=image_path, max_size_kb=data_dict["file_size"])
+                                CompressUtils.resize_image(image_path=image_path, max_size_kb=data_dict["file_size"])
                             except Exception as e:
                                 print(e)
                             break
@@ -90,20 +111,6 @@ class CompressThreadBased(QThread):
     def force_cancel_cmd(self):
         Shared.flag = False
 
-    def resize_image(self, image_path: str, max_size_kb: int):
-        current_size_kb = os.path.getsize(image_path) / 1024.0
-        if current_size_kb <= max_size_kb:
-            return
-
-        img = Image.open(image_path)
-        quality = 95
-
-        while True:
-            img.save(image_path, optimize=True, quality=quality)
-            if os.path.getsize(image_path) <= max_size_kb * 1024 or quality <= 10:
-                break
-            quality -= 5
-
     def process_images(self, data: list[dict]):
         """
         [ {"destination": str, "file_size": int}, ... ]
@@ -123,6 +130,6 @@ class CompressThreadBased(QThread):
 
                         image_path = os.path.join(root, filename)
                         try:
-                            self.resize_image(image_path=image_path, max_size_kb=data_dict["file_size"])
+                            CompressUtils.resize_image(image_path=image_path, max_size_kb=data_dict["file_size"])
                         except Exception as e:
                             print(e)
