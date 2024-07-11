@@ -72,7 +72,7 @@ class MyApp(QWidget):
     def initUI(self):
         self.setWindowTitle('Image Compressor')
         self.setMinimumSize(560, 400)
-        self.setGeometry(100, 100, 560, 400)
+        self.resize(560, 400)
 
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(0, 10, 0, 0)
