@@ -12,51 +12,23 @@ from datetime import datetime
 
 from setuptools import setup
 
-from cfg import cnf
+from cfg import Cfg
 from setup_ext import SetupExt
 
 current_year = datetime.now().year
 
 APP = ["start.py"]
 
-images = [
-    os.path.join("images", i)
-    for i in os.listdir("images")
-    if i.endswith((".svg", ".jpg"))
-    ]
-
-applescripts = [
-    os.path.join("applescripts", i)
-    for i in os.listdir("applescripts")
-    if i.endswith((".scpt"))
-    ]
-
-styles = [
-    os.path.join("styles", i)
-    for i in os.listdir("styles")
-    if i.endswith((".css"))
-]
-
-icons = [
-    os.path.join("icon", i)
-    for i in os.listdir("icon")
-    ]
-
-
 DATA_FILES = [
-    "db.db",
-    "lang/lang.json",
-    ("images", images),
-    ("applescripts", applescripts),
-    ("styles", styles),
-    ("icon", icons)
+    "icon.icns",
+    "icon.png"
     ]
 
-OPTIONS = {"iconfile": "icon/icon.icns",
-           "plist": {"CFBundleName": cnf.app_name,
-                     "CFBundleShortVersionString": cnf.app_ver,
-                     "CFBundleVersion": cnf.app_ver,
-                     "CFBundleIdentifier": f"com.evlosh.{cnf.app_name}",
+OPTIONS = {"iconfile": "icon.icns",
+           "plist": {"CFBundleName": Cfg.app_name,
+                     "CFBundleShortVersionString": Cfg.app_ver,
+                     "CFBundleVersion": Cfg.app_ver,
+                     "CFBundleIdentifier": f"com.evlosh.{Cfg.app_name}",
                      "NSHumanReadableCopyright": (
                          f"Created by Evgeny Loshkarev"
                          f"\nCopyright © {current_year} MIUZ Diamonds."
@@ -64,26 +36,17 @@ OPTIONS = {"iconfile": "icon/icon.icns",
 
 
 if __name__ == "__main__":
-
-    print()
-    print("Copy db file from App Support?")
-    print("Type \"1\" to confirm")
-    print()
-    res = input()
-    if res == "1":
-        shutil.copyfile(src=cnf.db_file, dst="db.db")
-
     sys.argv.append("py2app")
 
     try:
         setup(
             app=APP,
-            name=cnf.app_name,
+            name=Cfg.app_name,
             data_files=DATA_FILES,
             options={"py2app": OPTIONS},
             setup_requires=["py2app"],
             )
-        SetupExt(appname=cnf.app_name)
+        SetupExt(appname=Cfg.app_name)
 
     except Exception:
         print(traceback.format_exc())
