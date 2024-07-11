@@ -233,14 +233,3 @@ class MyApp(QWidget):
         msg.setGeometry(geo)
 
         msg.exec_()
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = MyApp()
-
-    if os.path.basename(os.path.dirname(__file__)) != "Resources":
-        app.setWindowIcon(QIcon("icon.png"))
-
-    ex.show()
-    sys.exit(app.exec_())
