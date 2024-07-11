@@ -1,6 +1,8 @@
+import os
 import sys
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QApplication, QFileDialog, QFrame, QHBoxLayout,
                              QLabel, QLineEdit, QMessageBox, QPushButton,
                              QScrollArea, QSpacerItem, QVBoxLayout, QWidget)
@@ -236,5 +238,9 @@ class MyApp(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = MyApp()
+
+    if os.path.basename(os.path.dirname(__file__)) != "Resources":
+        app.setWindowIcon(QIcon("icon.png"))
+
     ex.show()
     sys.exit(app.exec_())
