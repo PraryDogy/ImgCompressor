@@ -270,6 +270,11 @@ class MyApp(QWidget):
         Shared.my_app = self.app_ext
         self.app_ext.show()
 
+        try:
+            self.task.force_cancel.emit()
+        except Exception as e:
+            print(e)
+
         self.deleteLater()
 
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
