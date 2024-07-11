@@ -1,6 +1,6 @@
 import os
 from PyQt5.QtCore import QThread, pyqtSignal
-import cv2
+from PIL import Image
 
 class Shared:
     flag = True
@@ -8,38 +8,38 @@ class Shared:
 
 class CompressUtils:
 
-    # @staticmethod
-    # def resize_image(image_path: str, max_size_kb: int):
-    #     current_size_kb = os.path.getsize(image_path) / 1024.0
-    #     if current_size_kb <= max_size_kb:
-    #         return
-
-    #     img = Image.open(image_path)
-    #     quality = 95
-
-    #     while True:
-    #         img.save(image_path, optimize=True, quality=quality)
-    #         if os.path.getsize(image_path) <= max_size_kb * 1024 or quality <= 10:
-    #             break
-            # quality -= 5
-
     @staticmethod
     def resize_image(image_path: str, max_size_kb: int):
         current_size_kb = os.path.getsize(image_path) / 1024.0
         if current_size_kb <= max_size_kb:
             return
 
-        img = cv2.imread(image_path)
+        img = Image.open(image_path)
         quality = 95
 
         while True:
-            encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
-            _, buffer = cv2.imencode('.jpg', img, encode_param)
-            with open(image_path, 'wb') as f:
-                f.write(buffer)
+            img.save(image_path, optimize=True, quality=quality)
             if os.path.getsize(image_path) <= max_size_kb * 1024 or quality <= 10:
                 break
             quality -= 5
+
+    # @staticmethod
+    # def resize_image(image_path: str, max_size_kb: int):
+    #     current_size_kb = os.path.getsize(image_path) / 1024.0
+    #     if current_size_kb <= max_size_kb:
+    #         return
+
+    #     img = cv2.imread(image_path)
+    #     quality = 95
+
+    #     while True:
+    #         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
+    #         _, buffer = cv2.imencode('.jpg', img, encode_param)
+    #         with open(image_path, 'wb') as f:
+    #             f.write(buffer)
+    #         if os.path.getsize(image_path) <= max_size_kb * 1024 or quality <= 10:
+    #             break
+    #         quality -= 5
 
 
 class CompressThread(QThread):
