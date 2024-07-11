@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                              QLineEdit, QMessageBox, QPushButton, QScrollArea,
                              QVBoxLayout, QWidget)
 
-from util import CompressThread
+from util import CompressThread, CompressThreadBased
 from cfg import Cfg
 
 class Shared:
@@ -34,6 +34,7 @@ class DynamicWidget(QWidget):
 
         self.browse_btn =  QPushButton("Обзор")
         self.browse_btn.setFixedWidth(100)
+        self.browse_btn.clicked.connect(self.browse_btn_cmd)
         up_layout.addWidget(self.browse_btn)
 
         self.browse_label = QLabel("Нажмите обзор и выберите папку для сжатия изображений")
@@ -62,12 +63,35 @@ class DynamicWidget(QWidget):
         if os.path.isdir(path):
             self.browse_label.setText(path)
             return super().dropEvent(a0)
-        
+    
+    def browse_btn_cmd(self):
+        dest = QFileDialog.getExistingDirectory()
+
+        if dest:
+            self.browse_label.setText(dest)
+
+    def get_data(self):
+        dest = self.browse_label.text()
+
+        if "Нажмите" in dest:
+            return None
+
+        try:
+            right_input_value = int(self.input_wid.text().strip())
+            right_input_value = right_input_value - 5
+        except Exception as e:
+            return None
+
+        return {
+            "destination": dest,
+            "file_size": right_input_value
+            }
+
+
 
 class MyAppExt(QWidget):
     def __init__(self):
         super().__init__()
-        self.my_path = None
         self.initUI()
 
     def initUI(self):
@@ -160,10 +184,6 @@ class MyAppExt(QWidget):
         if not self.statement_widgets:
             return
 
-        if not self.my_path:
-            self.show_warning("Укажите папку")
-            return
-
         data = []
 
         for i in self.statement_widgets:
@@ -172,7 +192,7 @@ class MyAppExt(QWidget):
             if i_data:
                 data.append(i_data)
             else:
-                t = "Заполните все данные в условиях.\nСлева имя папки, справа целое число"
+                t = "Заполните все данные в условиях.\Укажите путь к папке, введите целое число"
                 self.show_warning(t)
                 return
 
@@ -182,7 +202,7 @@ class MyAppExt(QWidget):
         self.start_btn.clicked.connect(self.start_btn_stop_cmd)
 
         try:
-            self.task = CompressThread(root_dir=self.my_path, data=data)
+            self.task = CompressThreadBased(data=data)
             self.task.finished.connect(self.finished_task)
             self.task.start()
         except Exception as e:
@@ -224,5 +244,10 @@ class MyAppExt(QWidget):
         self.app_ext = MyApp()
         Shared.my_app = self.app_ext
         self.app_ext.show()
+
+        try:
+            self.task.force_cancel.emit()
+        except Exception as e:
+            print(e)
 
         self.deleteLater()
