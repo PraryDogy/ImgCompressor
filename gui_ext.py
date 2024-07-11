@@ -14,71 +14,64 @@ class Shared:
     my_app = None
 
 
+
 class DynamicWidget(QWidget):
     def __init__(self, title: str, parent: QWidget = None):
         super().__init__(parent)
+        self.setAcceptDrops(True)
         self.my_parent = parent
 
-        h_layout = QHBoxLayout()
-        h_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(h_layout)
+        v_layout = QVBoxLayout()
+        v_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(v_layout)
 
-        left_wid = QWidget()
-        h_layout.addWidget(left_wid)
-        left_layout = QVBoxLayout()
-        left_layout.setContentsMargins(0, 0, 0, 0)
-        left_wid.setLayout(left_layout)
+        up_wid = QWidget()
+        v_layout.addWidget(up_wid)
 
-        left_lbl = QLabel(f" Если имя папки РАВНОЗНАЧНО")
-        left_layout.addWidget(left_lbl)
+        up_layout = QHBoxLayout()
+        up_layout.setContentsMargins(0, 0, 0, 0)
+        up_wid.setLayout(up_layout)
 
-        self.left_input = QLineEdit()
-        self.left_input.setFixedHeight(30)
-        self.left_input.setPlaceholderText("Напишите имя папки")
-        self.left_input.setStyleSheet("padding-left: 5px;")
-        left_layout.addWidget(self.left_input)
+        self.browse_btn =  QPushButton("Обзор")
+        self.browse_btn.setFixedWidth(100)
+        up_layout.addWidget(self.browse_btn)
 
-        right_wid = QWidget()
-        h_layout.addWidget(right_wid)
-        right_layout = QVBoxLayout()
-        right_layout.setContentsMargins(0, 0, 0, 0)
-        right_wid.setLayout(right_layout)
+        self.browse_label = QLabel("Нажмите обзор и выберите папку для сжатия изображений")
+        self.browse_label.setWordWrap(True)
+        up_layout.addWidget(self.browse_label)
 
-        right_lbl = QLabel(f" Уменьшить до kb")
-        right_layout.addWidget(right_lbl)
+        input_label = QLabel(" До какого размера сжать в kb")
+        v_layout.addWidget(input_label)
 
-        self.right_input = QLineEdit()
-        self.right_input.setFixedHeight(30)
-        self.right_input.setPlaceholderText("Напишите размер в килобайтах")
-        self.right_input.setStyleSheet("padding-left: 5px;")
-        right_layout.addWidget(self.right_input)
+        self.input_wid = QLineEdit()
+        self.input_wid.setPlaceholderText("Введите целое число")
+        self.input_wid.setStyleSheet("padding-left: 5px;")
+        self.input_wid.setFixedSize(250, 30)
+        v_layout.addWidget(self.input_wid)
 
-    def get_data(self):
-        try:
-            right_input_value = int(self.right_input.text().strip())
-            right_input_value = right_input_value - 5
-        except Exception as e:
-            return None
+    def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
+        if a0.mimeData().hasUrls():
+            a0.acceptProposedAction()
+        return super().dragEnterEvent(a0)
+    
+    def dragLeaveEvent(self, a0: QDragLeaveEvent | None) -> None:
+        return super().dragLeaveEvent(a0)
+
+    def dropEvent(self, a0: QDropEvent | None) -> None:
+        path = a0.mimeData().urls()[0].toLocalFile()
+        if os.path.isdir(path):
+            self.browse_label.setText(path)
+            return super().dropEvent(a0)
         
-        left_input_value = self.left_input.text().strip()
-        if not left_input_value:
-            return None
 
-        return {
-            "folder_name": left_input_value,
-            "file_size": right_input_value
-            }
-
-
-class MyApp(QWidget):
+class MyAppExt(QWidget):
     def __init__(self):
         super().__init__()
         self.my_path = None
         self.initUI()
 
     def initUI(self):
-        self.setAcceptDrops(True)
-        self.setWindowTitle(f'{Cfg.app_name}: сжатие по условиям')
+        self.setWindowTitle(f'{Cfg.app_name}: сжатие без условий')
         self.setMinimumSize(560, 400)
         self.resize(560, 400)
 
@@ -87,50 +80,20 @@ class MyApp(QWidget):
         self.setLayout(self.v_layout)
 
 
-        self.mode_btn = QPushButton("Включить сжатие без условий")
+        self.mode_btn = QPushButton("Включить сжатие по условиям")
         self.mode_btn.clicked.connect(self.mode_btn_cmd)
         self.v_layout.addWidget(self.mode_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
 
 
 
-        self.browseTitle = QLabel('Выбранная папка:')
+        self.browseTitle = QLabel('Выберите одну или несколько папок')
         self.v_layout.addWidget(self.browseTitle)
 
-
-
-
-        h_wid = QWidget()
-        h_wid.setFixedHeight(50)
-        self.v_layout.addWidget(h_wid)
-
-        h_layout = QHBoxLayout()
-        h_layout.setContentsMargins(0, 0, 0, 0)
-        h_wid.setLayout(h_layout)
-
-        self.browse_btn = QPushButton('Обзор')
-        self.browse_btn.clicked.connect(self.browse_folder)
-        self.browse_btn.setFixedWidth(200)
-        h_layout.addWidget(self.browse_btn)
-
-        self.browse_label_path = QLabel('Нажмите обзор и выберите папку')
-        h_layout.addWidget(self.browse_label_path)
-
-
-
-
-        h_wid_ = QWidget()
-        h_wid_.setFixedHeight(50)
-        self.v_layout.addWidget(h_wid_)
-
-        h_layout_ = QHBoxLayout()
-        h_layout_.setContentsMargins(0, 0, 0, 0)
-        h_wid_.setLayout(h_layout_)
-
-        self.add_btn = QPushButton("+ Добавить условие")
+        self.add_btn = QPushButton("+ Добавить папку")
         self.add_btn.clicked.connect(self.add_btn_cmd)
         self.add_btn.setFixedWidth(200)
-        h_layout_.addWidget(self.add_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.v_layout.addWidget(self.add_btn)
 
 
 
@@ -155,14 +118,6 @@ class MyApp(QWidget):
         self.v_layout.addWidget(self.start_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.statement_widgets: list[DynamicWidget] = []
-
-
-    def browse_folder(self):
-        directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
-        if directory:
-            self.browse_label_path.setWordWrap(True)
-            self.browse_label_path.setText(directory)
-            self.my_path = directory
 
     def my_sep(self):
         sep = QFrame()
@@ -263,27 +218,11 @@ class MyApp(QWidget):
         msg.exec_()
 
     def mode_btn_cmd(self):
-        from gui_ext import MyAppExt
+        from gui import MyApp
         self.hide()
 
-        self.app_ext = MyAppExt()
+        self.app_ext = MyApp()
         Shared.my_app = self.app_ext
         self.app_ext.show()
 
         self.deleteLater()
-
-    def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
-        if a0.mimeData().hasUrls():
-            a0.acceptProposedAction()
-        return super().dragEnterEvent(a0)
-    
-    def dragLeaveEvent(self, a0: QDragLeaveEvent | None) -> None:
-        return super().dragLeaveEvent(a0)
-
-    def dropEvent(self, a0: QDropEvent | None) -> None:
-        path = a0.mimeData().urls()[0].toLocalFile()
-        if os.path.isdir(path):
-            self.browse_label_path.setWordWrap(True)
-            self.browse_label_path.setText(path)
-            self.my_path = path
-            return super().dropEvent(a0)

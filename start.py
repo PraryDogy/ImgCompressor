@@ -4,7 +4,7 @@ import sys
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 
-from gui import MyApp
+from gui_ext import MyAppExt
 
 if __name__ == '__main__':
 
@@ -29,6 +29,6 @@ if __name__ == '__main__':
     if not os.path.exists("lib"):
         app.setWindowIcon(QIcon("icon.png"))
 
-    ex = MyApp()
+    ex = MyAppExt()
     ex.show()
     sys.exit(app.exec_())
