@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import Qt, pyqtSignal, QSize
-from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
+from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent, QResizeEvent
 from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                              QLineEdit, QListWidget, QListWidgetItem,
                              QMessageBox, QPushButton, QSpacerItem,
@@ -117,8 +117,13 @@ class MyAppExt(QWidget):
 
     def initUI(self):
         self.setWindowTitle(f'{Cfg.app_name}: сжатие без условий')
+
         self.setMinimumSize(560, 400)
-        self.resize(560, 400)
+
+        if Cfg.geo:
+            self.setGeometry(Cfg.geo)
+        else:
+            self.resize(560, 400)
 
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(0, 10, 0, 0)
@@ -219,6 +224,7 @@ class MyAppExt(QWidget):
         msg.setText(text)
         msg.setWindowTitle("Внимание")
         msg.setStandardButtons(QMessageBox.Ok)
+        msg.setGeometry(0, 0, 100, 100)
         msg.adjustSize()
 
         geo = msg.geometry()
@@ -231,6 +237,7 @@ class MyAppExt(QWidget):
         from gui import MyApp
         self.hide()
 
+        Cfg.geo = self.geometry()
         self.app_ext = MyApp()
         Shared.my_app = self.app_ext
         self.app_ext.show()
@@ -238,6 +245,6 @@ class MyAppExt(QWidget):
         try:
             self.task.force_cancel.emit()
         except Exception as e:
-            print(e)
+            pass
 
         self.deleteLater()

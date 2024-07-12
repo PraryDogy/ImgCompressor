@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import Qt, pyqtSignal, QSize
-from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
+from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent, QResizeEvent
 from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                              QLineEdit, QListWidget, QListWidgetItem,
                              QMessageBox, QPushButton, QSpacerItem,
@@ -109,7 +109,12 @@ class MyApp(QWidget):
         self.setAcceptDrops(True)
         self.setWindowTitle(f'{Cfg.app_name}: сжатие по условиям')
         self.setMinimumSize(560, 400)
-        self.resize(560, 400)
+
+        if Cfg.geo:
+            self.setGeometry(Cfg.geo)
+        else:
+            self.resize(560, 400)
+
 
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(0, 10, 0, 0)
@@ -258,6 +263,7 @@ class MyApp(QWidget):
         from gui_ext import MyAppExt
         self.hide()
 
+        Cfg.geo = self.geometry()
         self.app_ext = MyAppExt()
         Shared.my_app = self.app_ext
         self.app_ext.show()
@@ -265,7 +271,7 @@ class MyApp(QWidget):
         try:
             self.task.force_cancel.emit()
         except Exception as e:
-            print(e)
+            pass
 
         self.deleteLater()
 
@@ -284,3 +290,4 @@ class MyApp(QWidget):
             self.browse_label_path.setText(path)
             self.my_path = path
             return super().dropEvent(a0)
+        
