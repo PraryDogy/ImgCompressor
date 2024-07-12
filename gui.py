@@ -181,6 +181,7 @@ class MyApp(QWidget):
     def add_btn_cmd(self):
         list_item = QListWidgetItem()
         wid = DynamicWidget(title="hello", parent=self)
+        wid.removed.connect(lambda: self.statement_widgets.remove(wid))
         list_item.setSizeHint(wid.sizeHint())
         self.list_widget.addItem(list_item)
         self.list_widget.setItemWidget(list_item, wid)

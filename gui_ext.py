@@ -1,11 +1,11 @@
 import os
 import sys
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
 from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                              QLineEdit, QMessageBox, QPushButton, QScrollArea,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QListWidget, QListWidgetItem, QSpacerItem)
 
 from util import CompressThread, CompressThreadBased
 from cfg import Cfg
@@ -16,6 +16,8 @@ class Shared:
 
 
 class DynamicWidget(QWidget):
+    removed = pyqtSignal()
+
     def __init__(self, title: str, parent: QWidget = None):
         super().__init__(parent)
         self.setAcceptDrops(True)
@@ -25,30 +27,42 @@ class DynamicWidget(QWidget):
         v_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(v_layout)
 
-        up_wid = QWidget()
+        up_wid = QWidget(parent=self)
         v_layout.addWidget(up_wid)
 
         up_layout = QHBoxLayout()
         up_layout.setContentsMargins(0, 0, 0, 0)
         up_wid.setLayout(up_layout)
 
-        self.browse_btn =  QPushButton("Обзор")
+        self.browse_btn = QPushButton(parent=self, text="Обзор")
         self.browse_btn.setFixedWidth(100)
         self.browse_btn.clicked.connect(self.browse_btn_cmd)
         up_layout.addWidget(self.browse_btn)
 
-        self.browse_label = QLabel("Нажмите обзор и выберите папку для сжатия изображений")
+        self.browse_label = QLabel(parent=self, text="Нажмите обзор и выберите папку для сжатия изображений")
         self.browse_label.setWordWrap(True)
         up_layout.addWidget(self.browse_label)
 
-        input_label = QLabel(" До какого размера сжать в kb")
+        input_label = QLabel(parent=self, text=" До какого размера сжать в kb")
         v_layout.addWidget(input_label)
 
-        self.input_wid = QLineEdit()
+        self.input_wid = QLineEdit(parent=self)
         self.input_wid.setPlaceholderText("Введите целое число")
         self.input_wid.setStyleSheet("padding-left: 5px;")
         self.input_wid.setFixedSize(250, 30)
         v_layout.addWidget(self.input_wid)
+
+        self.remove_btn = QPushButton(parent=self, text="Удалить")
+        self.remove_btn.setFixedWidth(200)
+        v_layout.addWidget(self.remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        v_layout.addSpacerItem(QSpacerItem(0, 10))
+        v_layout.addWidget(self.my_sep())
+        v_layout.addSpacerItem(QSpacerItem(0, 10))
+
+    def remove_btn_cmd(self):
+        self.removed.emit()
+        self.deleteLater()
 
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
         if a0.mimeData().hasUrls():
@@ -87,6 +101,11 @@ class DynamicWidget(QWidget):
             "file_size": right_input_value
             }
 
+    def my_sep(self):
+        sep = QFrame()
+        sep.setFixedHeight(1)
+        sep.setStyleSheet("background-color: black;")
+        return sep
 
 
 class MyAppExt(QWidget):
@@ -122,19 +141,9 @@ class MyAppExt(QWidget):
 
 
 
-        scroll_area = QScrollArea()
-        scroll_area.setContentsMargins(0, 0, 0, 0)
-        scroll_area.setWidgetResizable(True)
-        self.v_layout.addWidget(scroll_area)
-
-        scroll_widget = QWidget()
-        scroll_area.setWidget(scroll_widget)
-    
-        self.scroll_v_layout = QVBoxLayout()
-        self.scroll_v_layout.setContentsMargins(0, 0, 0, 0)
-        scroll_widget.setLayout(self.scroll_v_layout)
-
-        self.scroll_v_layout.insertStretch(-1, 10)
+        self.list_widget = QListWidget(parent=self)
+        self.list_widget.setSelectionMode(QListWidget.NoSelection)
+        self.v_layout.addWidget(self.list_widget)
 
         self.start_btn = QPushButton("Старт")
         self.start_btn.setFixedWidth(200)
@@ -143,42 +152,16 @@ class MyAppExt(QWidget):
 
         self.statement_widgets: list[DynamicWidget] = []
 
-    def my_sep(self):
-        sep = QFrame()
-        sep.setFixedHeight(1)
-        sep.setStyleSheet("background-color: black;")
-        return sep
-
     def add_btn_cmd(self):
+        list_item = QListWidgetItem()
         wid = DynamicWidget(title="hello", parent=self)
+        wid.removed.connect(lambda: self.statement_widgets.remove(wid))
+        list_item.setSizeHint(wid.sizeHint())
+        self.list_widget.addItem(list_item)
+        self.list_widget.setItemWidget(list_item, wid)
+
         self.statement_widgets.append(wid)
-        self.scroll_v_layout.insertWidget(0, wid)
 
-        remove_btn = QPushButton("Удалить")
-        remove_btn.setFixedWidth(200)
-        self.scroll_v_layout.insertWidget(1, remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        above_frame = QFrame()
-        above_frame.setFixedHeight(10)
-        self.scroll_v_layout.insertWidget(2, above_frame)
-
-        sep = self.my_sep()
-        self.scroll_v_layout.insertWidget(3, sep)
-
-        below_frame = QFrame()
-        below_frame.setFixedHeight(10)
-        self.scroll_v_layout.insertWidget(4, below_frame)
-
-        wids = [wid, remove_btn, above_frame, sep, below_frame]
-        remove_btn.clicked.connect(lambda: self.remove_btn_cmd(wids))
-
-    def remove_btn_cmd(self, widgets: list[QWidget]):
-        self.statement_widgets.remove(widgets[0])
-        for i in widgets:
-            try:
-                i.deleteLater()
-            except Exception:
-                pass
 
     def start_btn_start_cmd(self):
         if not self.statement_widgets:
@@ -192,7 +175,7 @@ class MyAppExt(QWidget):
             if i_data:
                 data.append(i_data)
             else:
-                t = "Заполните все данные в условиях.\Укажите путь к папке, введите целое число"
+                t = "Заполните все данные в условиях.\nУкажите путь к папке, введите целое число"
                 self.show_warning(t)
                 return
 
