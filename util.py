@@ -1,6 +1,8 @@
 import os
-from PyQt5.QtCore import QThread, pyqtSignal
+
 from PIL import Image
+from PyQt5.QtCore import QThread, pyqtSignal
+
 
 class Shared:
     flag = True

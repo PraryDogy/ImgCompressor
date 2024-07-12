@@ -1,14 +1,15 @@
 import os
-import sys
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent, QMouseEvent
+from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
 from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
-                             QLineEdit, QMessageBox, QPushButton, QScrollArea,
-                             QVBoxLayout, QWidget, QSpacerItem, QListWidget, QListWidgetItem)
+                             QLineEdit, QListWidget, QListWidgetItem,
+                             QMessageBox, QPushButton, QSpacerItem,
+                             QVBoxLayout, QWidget)
 
-from util import CompressThread
 from cfg import Cfg
+from util import CompressThread
+
 
 class Shared:
     my_app = None
@@ -161,6 +162,7 @@ class MyApp(QWidget):
         h_layout_.addWidget(self.add_btn, alignment=Qt.AlignmentFlag.AlignLeft)
 
         self.list_widget = QListWidget(parent=self)
+        self.list_widget.verticalScrollBar().setSingleStep(15)
         self.list_widget.setSelectionMode(QListWidget.NoSelection)
         self.v_layout.addWidget(self.list_widget)
 

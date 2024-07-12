@@ -1,14 +1,15 @@
 import os
-import sys
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
 from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
-                             QLineEdit, QMessageBox, QPushButton, QScrollArea,
-                             QVBoxLayout, QWidget, QListWidget, QListWidgetItem, QSpacerItem)
+                             QLineEdit, QListWidget, QListWidgetItem,
+                             QMessageBox, QPushButton, QSpacerItem,
+                             QVBoxLayout, QWidget)
 
-from util import CompressThread, CompressThreadBased
 from cfg import Cfg
+from util import CompressThreadBased
+
 
 class Shared:
     my_app = None
@@ -143,6 +144,7 @@ class MyAppExt(QWidget):
 
         self.list_widget = QListWidget(parent=self)
         self.list_widget.setSelectionMode(QListWidget.NoSelection)
+        self.list_widget.verticalScrollBar().setSingleStep(15)
         self.v_layout.addWidget(self.list_widget)
 
         self.start_btn = QPushButton("Старт")
