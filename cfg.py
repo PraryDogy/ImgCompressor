@@ -1,3 +1,3 @@
 class Cfg:
     app_name = "ImgCompressor"
-    app_ver = "1.0.1"
+    app_ver = "1.1.0"
