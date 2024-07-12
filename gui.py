@@ -1,11 +1,11 @@
 import os
 import sys
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent, QMouseEvent
 from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                              QLineEdit, QMessageBox, QPushButton, QScrollArea,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QSpacerItem, QListWidget, QListWidgetItem)
 
 from util import CompressThread
 from cfg import Cfg
@@ -15,43 +15,65 @@ class Shared:
 
 
 class DynamicWidget(QWidget):
+    removed = pyqtSignal()
+
     def __init__(self, title: str, parent: QWidget = None):
         super().__init__(parent)
         self.my_parent = parent
 
+        v_layout = QVBoxLayout()
+        v_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(v_layout)
+
+        h_wid = QWidget(parent=self)
+        v_layout.addWidget(h_wid)
+
         h_layout = QHBoxLayout()
         h_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(h_layout)
+        h_wid.setLayout(h_layout)
 
-        left_wid = QWidget()
+        left_wid = QWidget(parent=self)
         h_layout.addWidget(left_wid)
         left_layout = QVBoxLayout()
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_wid.setLayout(left_layout)
 
-        left_lbl = QLabel(f" Если имя папки РАВНОЗНАЧНО")
+        left_lbl = QLabel(parent=self, text=f" Если имя папки РАВНОЗНАЧНО")
         left_layout.addWidget(left_lbl)
 
-        self.left_input = QLineEdit()
+        self.left_input = QLineEdit(parent=self)
         self.left_input.setFixedHeight(30)
         self.left_input.setPlaceholderText("Напишите имя папки")
         self.left_input.setStyleSheet("padding-left: 5px;")
         left_layout.addWidget(self.left_input)
 
-        right_wid = QWidget()
+        right_wid = QWidget(parent=self)
         h_layout.addWidget(right_wid)
         right_layout = QVBoxLayout()
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_wid.setLayout(right_layout)
 
-        right_lbl = QLabel(f" Уменьшить до kb")
+        right_lbl = QLabel(parent=self, text=f" Уменьшить до kb")
         right_layout.addWidget(right_lbl)
 
-        self.right_input = QLineEdit()
+        self.right_input = QLineEdit(parent=self)
         self.right_input.setFixedHeight(30)
         self.right_input.setPlaceholderText("Напишите размер в килобайтах")
         self.right_input.setStyleSheet("padding-left: 5px;")
         right_layout.addWidget(self.right_input)
+
+        self.remove_btn = QPushButton(parent=self, text="Удалить")
+        self.remove_btn.setFixedWidth(200)
+        self.remove_btn.clicked.connect(self.remove_btn_cmd)
+        v_layout.addWidget(self.remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        v_layout.addSpacerItem(QSpacerItem(0, 10))
+        v_layout.addWidget(self.my_sep())
+        v_layout.addSpacerItem(QSpacerItem(0, 10))
+
+    def remove_btn_cmd(self):
+        self.removed.emit()
+        self.deleteLater()
 
     def get_data(self):
         try:
@@ -68,6 +90,12 @@ class DynamicWidget(QWidget):
             "folder_name": left_input_value,
             "file_size": right_input_value
             }
+
+    def my_sep(self):
+        sep = QFrame(parent=self)
+        sep.setFixedHeight(1)
+        sep.setStyleSheet("background-color: black;")
+        return sep
 
 
 class MyApp(QWidget):
@@ -132,22 +160,9 @@ class MyApp(QWidget):
         self.add_btn.setFixedWidth(200)
         h_layout_.addWidget(self.add_btn, alignment=Qt.AlignmentFlag.AlignLeft)
 
-
-
-
-        scroll_area = QScrollArea()
-        scroll_area.setContentsMargins(0, 0, 0, 0)
-        scroll_area.setWidgetResizable(True)
-        self.v_layout.addWidget(scroll_area)
-
-        scroll_widget = QWidget()
-        scroll_area.setWidget(scroll_widget)
-    
-        self.scroll_v_layout = QVBoxLayout()
-        self.scroll_v_layout.setContentsMargins(0, 0, 0, 0)
-        scroll_widget.setLayout(self.scroll_v_layout)
-
-        self.scroll_v_layout.insertStretch(-1, 10)
+        self.list_widget = QListWidget(parent=self)
+        self.list_widget.setSelectionMode(QListWidget.NoSelection)
+        self.v_layout.addWidget(self.list_widget)
 
         self.start_btn = QPushButton("Старт")
         self.start_btn.setFixedWidth(200)
@@ -156,7 +171,6 @@ class MyApp(QWidget):
 
         self.statement_widgets: list[DynamicWidget] = []
 
-
     def browse_folder(self):
         directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
         if directory:
@@ -164,42 +178,14 @@ class MyApp(QWidget):
             self.browse_label_path.setText(directory)
             self.my_path = directory
 
-    def my_sep(self):
-        sep = QFrame()
-        sep.setFixedHeight(1)
-        sep.setStyleSheet("background-color: black;")
-        return sep
-
     def add_btn_cmd(self):
+        list_item = QListWidgetItem()
         wid = DynamicWidget(title="hello", parent=self)
+        list_item.setSizeHint(wid.sizeHint())
+        self.list_widget.addItem(list_item)
+        self.list_widget.setItemWidget(list_item, wid)
+
         self.statement_widgets.append(wid)
-        self.scroll_v_layout.insertWidget(0, wid)
-
-        remove_btn = QPushButton("Удалить")
-        remove_btn.setFixedWidth(200)
-        self.scroll_v_layout.insertWidget(1, remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        above_frame = QFrame()
-        above_frame.setFixedHeight(10)
-        self.scroll_v_layout.insertWidget(2, above_frame)
-
-        sep = self.my_sep()
-        self.scroll_v_layout.insertWidget(3, sep)
-
-        below_frame = QFrame()
-        below_frame.setFixedHeight(10)
-        self.scroll_v_layout.insertWidget(4, below_frame)
-
-        wids = [wid, remove_btn, above_frame, sep, below_frame]
-        remove_btn.clicked.connect(lambda: self.remove_btn_cmd(wids))
-
-    def remove_btn_cmd(self, widgets: list[QWidget]):
-        self.statement_widgets.remove(widgets[0])
-        for i in widgets:
-            try:
-                i.deleteLater()
-            except Exception:
-                pass
 
     def start_btn_start_cmd(self):
         if not self.statement_widgets:
@@ -220,7 +206,6 @@ class MyApp(QWidget):
                 t = "Заполните все данные в условиях.\nСлева имя папки, справа целое число"
                 self.show_warning(t)
                 return
-
 
         self.start_btn.setText("Стоп")
         self.start_btn.clicked.disconnect()
