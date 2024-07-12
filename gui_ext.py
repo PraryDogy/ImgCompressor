@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QSize
 from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
 from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                              QLineEdit, QListWidget, QListWidgetItem,
@@ -55,6 +55,7 @@ class DynamicWidget(QWidget):
 
         self.remove_btn = QPushButton(parent=self, text="Удалить")
         self.remove_btn.setFixedWidth(200)
+        self.remove_btn.clicked.connect(self.remove_btn_cmd)
         v_layout.addWidget(self.remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         v_layout.addSpacerItem(QSpacerItem(0, 10))
@@ -146,6 +147,10 @@ class MyAppExt(QWidget):
         self.list_widget.setSelectionMode(QListWidget.NoSelection)
         self.list_widget.verticalScrollBar().setSingleStep(15)
         self.v_layout.addWidget(self.list_widget)
+
+        spacer_item = QListWidgetItem()
+        spacer_item.setSizeHint(QSize(0, 10))
+        self.list_widget.addItem(spacer_item)
 
         self.start_btn = QPushButton("Старт")
         self.start_btn.setFixedWidth(200)
