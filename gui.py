@@ -74,7 +74,6 @@ class DynamicWidget(QWidget):
 
     def remove_btn_cmd(self):
         self.removed.emit()
-        self.deleteLater()
 
     def get_data(self):
         try:
@@ -192,12 +191,21 @@ class MyApp(QWidget):
     def add_btn_cmd(self):
         list_item = QListWidgetItem()
         wid = DynamicWidget(title="hello", parent=self)
-        wid.removed.connect(lambda: self.statement_widgets.remove(wid))
+        wid.removed.connect(lambda: self.removed_cmd(list_item, wid))
         list_item.setSizeHint(wid.sizeHint())
         self.list_widget.addItem(list_item)
         self.list_widget.setItemWidget(list_item, wid)
 
         self.statement_widgets.append(wid)
+
+    def removed_cmd(self, list_item: QListWidgetItem, wid: DynamicWidget):
+        self.statement_widgets.remove(wid)
+
+        item_index = self.list_widget.row(list_item)
+        item = self.list_widget.takeItem(item_index)
+        self.list_widget.removeItemWidget(item)
+        del item
+
 
     def start_btn_start_cmd(self):
         if not self.statement_widgets:
