@@ -5,7 +5,7 @@ from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent, QResizeEve
 from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                              QLineEdit, QListWidget, QListWidgetItem,
                              QMessageBox, QPushButton, QSpacerItem,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QApplication)
 
 from cfg import Cfg
 from util import CompressThreadBased
@@ -123,6 +123,10 @@ class MyAppExt(QWidget):
             self.setGeometry(Cfg.geo)
         else:
             self.resize(560, 400)
+            geo = QApplication.primaryScreen().geometry()
+            x = geo.width() // 2 - self.width() // 2
+            y = geo.height() // 2 - self.height() // 2
+            self.move(x, y)
 
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(0, 10, 0, 0)
