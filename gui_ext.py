@@ -204,6 +204,7 @@ class MyAppExt(QWidget):
 
         try:
             self.task = CompressThreadBased(data=data)
+            self.switch_widgets(True)
             self.task.finished.connect(self.finished_task)
             self.task.start()
         except Exception as e:
@@ -211,11 +212,13 @@ class MyAppExt(QWidget):
 
     def finished_task(self):
         self.start_btn.setText("Старт")
+        self.switch_widgets(False)
         self.start_btn.clicked.disconnect()
         self.start_btn.clicked.connect(self.start_btn_start_cmd)
 
     def start_btn_stop_cmd(self):
         self.start_btn.setText("Старт")
+        self.switch_widgets(False)
         self.start_btn.clicked.disconnect()
         self.start_btn.clicked.connect(self.start_btn_start_cmd)
 
@@ -254,3 +257,10 @@ class MyAppExt(QWidget):
             pass
 
         self.deleteLater()
+
+    def switch_widgets(self, disabled: bool):
+        for i in (self.mode_btn, self.add_btn, self.list_widget):
+            try:
+                i.setDisabled(disabled)
+            except Exception as e:
+                print(e)

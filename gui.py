@@ -234,17 +234,20 @@ class MyApp(QWidget):
         try:
             self.task = CompressThread(root_dir=self.my_path, data=data)
             self.task.finished.connect(self.finished_task)
+            self.switch_widgets(True)
             self.task.start()
         except Exception as e:
             self.show_warning(f"Обратитесь к разрабочику\nОшибка при запуске QThread\n{e}")
 
     def finished_task(self):
         self.start_btn.setText("Старт")
+        self.switch_widgets(False)
         self.start_btn.clicked.disconnect()
         self.start_btn.clicked.connect(self.start_btn_start_cmd)
 
     def start_btn_stop_cmd(self):
         self.start_btn.setText("Старт")
+        self.switch_widgets(False)
         self.start_btn.clicked.disconnect()
         self.start_btn.clicked.connect(self.start_btn_start_cmd)
 
@@ -252,6 +255,13 @@ class MyApp(QWidget):
             self.task.force_cancel.emit()
         except Exception as e:
             pass
+
+    def switch_widgets(self, disabled: bool):
+        for i in (self.mode_btn, self.browse_btn,self.add_btn, self.list_widget):
+            try:
+                i.setDisabled(disabled)
+            except Exception as e:
+                print(e)
 
     def show_warning(self, text: str):
         msg = QMessageBox(self)
