@@ -98,7 +98,7 @@ class DynamicWidget(QWidget):
         return sep
 
 
-class MyApp(QWidget):
+class AppStatement(QWidget):
     def __init__(self):
         super().__init__()
         self.my_path = None
@@ -256,13 +256,6 @@ class MyApp(QWidget):
         except Exception as e:
             pass
 
-    def switch_widgets(self, disabled: bool):
-        for i in (self.mode_btn, self.browse_btn,self.add_btn, self.list_widget):
-            try:
-                i.setDisabled(disabled)
-            except Exception as e:
-                print(e)
-
     def show_warning(self, text: str):
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
@@ -278,11 +271,11 @@ class MyApp(QWidget):
         msg.exec_()
 
     def mode_btn_cmd(self):
-        from gui_ext import MyAppExt
+        from app_simple import AppSimple
         self.hide()
 
         Cfg.geo = self.geometry()
-        self.app_ext = MyAppExt()
+        self.app_ext = AppSimple()
         Shared.my_app = self.app_ext
         self.app_ext.show()
 
@@ -309,3 +302,9 @@ class MyApp(QWidget):
             self.my_path = path
             return super().dropEvent(a0)
         
+    def switch_widgets(self, disabled: bool):
+        for i in (self.mode_btn, self.browseTitle, self.browse_btn, self.browse_label_path, self.add_btn, self.list_widget):
+            try:
+                i.setDisabled(disabled)
+            except Exception as e:
+                print(e)

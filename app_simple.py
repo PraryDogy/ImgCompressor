@@ -109,7 +109,7 @@ class DynamicWidget(QWidget):
         return sep
 
 
-class MyAppExt(QWidget):
+class AppSimple(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -247,11 +247,11 @@ class MyAppExt(QWidget):
         msg.exec_()
 
     def mode_btn_cmd(self):
-        from gui import MyApp
+        from app_statement import AppStatement
         self.hide()
 
         Cfg.geo = self.geometry()
-        self.app_ext = MyApp()
+        self.app_ext = AppStatement()
         Shared.my_app = self.app_ext
         self.app_ext.show()
 
@@ -263,7 +263,7 @@ class MyAppExt(QWidget):
         self.deleteLater()
 
     def switch_widgets(self, disabled: bool):
-        for i in (self.mode_btn, self.add_btn, self.list_widget):
+        for i in (self.mode_btn, self.browseTitle, self.add_btn, self.list_widget):
             try:
                 i.setDisabled(disabled)
             except Exception as e:
