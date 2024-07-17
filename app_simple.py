@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal, QSize
+from PyQt5.QtCore import Qt, pyqtSignal, QSize, QTimer
 from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent, QResizeEvent
 from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                              QLineEdit, QListWidget, QListWidgetItem,
@@ -49,9 +49,11 @@ class DynamicWidget(QWidget):
 
         self.input_wid = QLineEdit(parent=self)
         self.input_wid.setPlaceholderText("Введите целое число")
-        self.input_wid.setStyleSheet("padding-left: 5px;")
         self.input_wid.setFixedSize(250, 30)
         v_layout.addWidget(self.input_wid)
+
+        self.input_wid.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
+        QTimer.singleShot(500, lambda: self.input_wid.setStyleSheet("padding-left: 5px;"))
 
         self.remove_btn = QPushButton(parent=self, text="Удалить")
         self.remove_btn.setFixedWidth(200)

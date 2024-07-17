@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal, QSize
+from PyQt5.QtCore import Qt, pyqtSignal, QSize, QTimer
 from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent, QResizeEvent
 from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                              QLineEdit, QListWidget, QListWidgetItem,
@@ -45,8 +45,10 @@ class DynamicWidget(QWidget):
         self.left_input = QLineEdit(parent=self)
         self.left_input.setFixedHeight(30)
         self.left_input.setPlaceholderText("Напишите имя папки")
-        self.left_input.setStyleSheet("padding-left: 5px;")
         left_layout.addWidget(self.left_input)
+
+        self.left_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
+        QTimer.singleShot(500, lambda: self.left_input.setStyleSheet("padding-left: 5px;"))
 
         right_wid = QWidget(parent=self)
         h_layout.addWidget(right_wid)
@@ -60,8 +62,11 @@ class DynamicWidget(QWidget):
         self.right_input = QLineEdit(parent=self)
         self.right_input.setFixedHeight(30)
         self.right_input.setPlaceholderText("Напишите размер в килобайтах")
-        self.right_input.setStyleSheet("padding-left: 5px;")
         right_layout.addWidget(self.right_input)
+
+        self.right_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
+        QTimer.singleShot(500, lambda: self.right_input.setStyleSheet("padding-left: 5px;"))
+
 
         self.remove_btn = QPushButton(parent=self, text="Удалить")
         self.remove_btn.setFixedWidth(200)
