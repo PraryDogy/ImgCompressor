@@ -15,7 +15,7 @@ class Shared:
     my_app = None
 
 
-class DynamicWidget(QWidget):
+class StatementWidget(QWidget):
     removed = pyqtSignal()
 
     def __init__(self, title: str, parent: QWidget = None):
@@ -67,6 +67,93 @@ class DynamicWidget(QWidget):
         self.right_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
         QTimer.singleShot(500, lambda: self.right_input.setStyleSheet("padding-left: 5px;"))
 
+
+        self.remove_btn = QPushButton(parent=self, text="Удалить")
+        self.remove_btn.setFixedWidth(200)
+        self.remove_btn.clicked.connect(self.remove_btn_cmd)
+        v_layout.addWidget(self.remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        v_layout.addSpacerItem(QSpacerItem(0, 10))
+        v_layout.addWidget(self.my_sep())
+        v_layout.addSpacerItem(QSpacerItem(0, 10))
+
+    def remove_btn_cmd(self):
+        self.removed.emit()
+
+    def get_data(self):
+        try:
+            right_input_value = int(self.right_input.text().strip())
+            right_input_value = right_input_value - 5
+        except Exception as e:
+            return None
+        
+        left_input_value = self.left_input.text().strip()
+        if not left_input_value:
+            return None
+
+        return {
+            "folder_name": left_input_value,
+            "file_size": right_input_value
+            }
+
+    def my_sep(self):
+        sep = QFrame(parent=self)
+        sep.setFixedHeight(1)
+        sep.setStyleSheet("background-color: black;")
+        return sep
+
+
+class FolderWidget(QWidget):
+    removed = pyqtSignal()
+
+    def __init__(self, path: str, parent: QWidget = None):
+        super().__init__(parent)
+        self.my_parent = parent
+        self.path_ = path
+
+        v_layout = QVBoxLayout()
+        v_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(v_layout)
+
+        h_wid = QWidget(parent=self)
+        v_layout.addWidget(h_wid)
+
+        h_layout = QHBoxLayout()
+        h_layout.setContentsMargins(0, 0, 0, 0)
+        h_wid.setLayout(h_layout)
+
+        left_wid = QWidget(parent=self)
+        h_layout.addWidget(left_wid)
+        left_layout = QVBoxLayout()
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_wid.setLayout(left_layout)
+
+        left_lbl = QLabel(parent=self, text=f" Выполнить в этой папке")
+        left_layout.addWidget(left_lbl)
+
+        if len(path) > 50:
+            path = "..." + path[-50:]
+
+        self.left_input = QLabel(text=path)
+        self.left_input.setFixedHeight(30)
+        left_layout.addWidget(self.left_input)
+
+        right_wid = QWidget(parent=self)
+        h_layout.addWidget(right_wid)
+        right_layout = QVBoxLayout()
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_wid.setLayout(right_layout)
+
+        right_lbl = QLabel(parent=self, text=f" Уменьшить до kb")
+        right_layout.addWidget(right_lbl)
+
+        self.right_input = QLineEdit(parent=self)
+        self.right_input.setFixedHeight(30)
+        self.right_input.setPlaceholderText("Напишите размер в килобайтах")
+        right_layout.addWidget(self.right_input)
+
+        self.right_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
+        QTimer.singleShot(500, lambda: self.right_input.setStyleSheet("padding-left: 5px;"))
 
         self.remove_btn = QPushButton(parent=self, text="Удалить")
         self.remove_btn.setFixedWidth(200)
@@ -165,10 +252,15 @@ class AppStatement(QWidget):
         h_layout_.setContentsMargins(0, 0, 0, 0)
         h_wid_.setLayout(h_layout_)
 
-        self.add_btn = QPushButton("+ Добавить условие")
-        self.add_btn.clicked.connect(self.add_btn_cmd)
+        self.add_btn = QPushButton("Добавить условие")
+        self.add_btn.clicked.connect(self.add_statement_cmd)
         self.add_btn.setFixedWidth(200)
         h_layout_.addWidget(self.add_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        # self.add_btn = QPushButton("Добавить папку")
+        # self.add_btn.clicked.connect(self.add_folder_cmd)
+        # self.add_btn.setFixedWidth(200)
+        # h_layout_.addWidget(self.add_btn, alignment=Qt.AlignmentFlag.AlignLeft)
 
         self.list_widget = QListWidget(parent=self)
         self.list_widget.verticalScrollBar().setSingleStep(15)
@@ -184,7 +276,7 @@ class AppStatement(QWidget):
         self.start_btn.clicked.connect(self.start_btn_start_cmd)
         self.v_layout.addWidget(self.start_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.statement_widgets: list[DynamicWidget] = []
+        self.statement_widgets: list[StatementWidget] = []
 
     def browse_folder(self):
         directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
@@ -193,17 +285,16 @@ class AppStatement(QWidget):
             self.browse_label_path.setText(directory)
             self.my_path = directory
 
-    def add_btn_cmd(self):
+    def add_statement_cmd(self):
         list_item = QListWidgetItem()
-        wid = DynamicWidget(title="hello", parent=self)
+        wid = StatementWidget(title="hello", parent=self)
         wid.removed.connect(lambda: self.removed_cmd(list_item, wid))
         list_item.setSizeHint(wid.sizeHint())
         self.list_widget.addItem(list_item)
         self.list_widget.setItemWidget(list_item, wid)
-
         self.statement_widgets.append(wid)
 
-    def removed_cmd(self, list_item: QListWidgetItem, wid: DynamicWidget):
+    def removed_cmd(self, list_item: QListWidgetItem, wid: StatementWidget):
         self.statement_widgets.remove(wid)
 
         item_index = self.list_widget.row(list_item)
@@ -302,10 +393,14 @@ class AppStatement(QWidget):
     def dropEvent(self, a0: QDropEvent | None) -> None:
         path = a0.mimeData().urls()[0].toLocalFile()
         if os.path.isdir(path):
-            self.browse_label_path.setWordWrap(True)
-            self.browse_label_path.setText(path)
-            self.my_path = path
-            return super().dropEvent(a0)
+
+            if self.list_widget.underMouse():
+                self.add_folder_cmd(path)
+            else:
+                self.browse_label_path.setWordWrap(True)
+                self.browse_label_path.setText(path)
+                self.my_path = path
+                return super().dropEvent(a0)
         
     def switch_widgets(self, disabled: bool):
         for i in (self.mode_btn, self.browseTitle, self.browse_btn, self.browse_label_path, self.add_btn, self.list_widget):
@@ -313,3 +408,12 @@ class AppStatement(QWidget):
                 i.setDisabled(disabled)
             except Exception as e:
                 print(e)
+
+    def add_folder_cmd(self, folder_path: str):
+        list_item = QListWidgetItem()
+        wid = FolderWidget(path=folder_path, parent=self)
+        wid.removed.connect(lambda: self.removed_cmd(list_item, wid))
+        list_item.setSizeHint(wid.sizeHint())
+        self.list_widget.addItem(list_item)
+        self.list_widget.setItemWidget(list_item, wid)
+        self.statement_widgets.append(wid)
