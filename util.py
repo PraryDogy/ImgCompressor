@@ -25,23 +25,17 @@ class CompressUtils:
                 break
             quality -= 5
 
-    # @staticmethod
-    # def resize_image(image_path: str, max_size_kb: int):
-    #     current_size_kb = os.path.getsize(image_path) / 1024.0
-    #     if current_size_kb <= max_size_kb:
-    #         return
-
-    #     img = cv2.imread(image_path)
-    #     quality = 95
-
-    #     while True:
-    #         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
-    #         _, buffer = cv2.imencode('.jpg', img, encode_param)
-    #         with open(image_path, 'wb') as f:
-    #             f.write(buffer)
-    #         if os.path.getsize(image_path) <= max_size_kb * 1024 or quality <= 10:
-    #             break
-    #         quality -= 5
+    @staticmethod
+    def resize_folder_folders(folder_path, max_size_kb: int):
+        for root, dirs, files in os.walk(folder_path):
+            for file in files:
+                src: str = os.path.join(root, file)
+                if src.lower().endswith(('.jpg', '.jpeg', '.png')):
+                    try:
+                        CompressUtils.resize_image(src, max_size_kb)
+                    except Exception as e:
+                        print(e)
+                        continue
 
 
 class CompressThread(QThread):
@@ -71,6 +65,29 @@ class CompressThread(QThread):
         [ {"folder_name": str, "file_size": int}, ... ]
         """
 
+        folder_names: list[dict] = []
+        folder_folders: list[dict] = []
+
+        for i in data:
+            if os.path.isdir(i.get("folder_name")):
+                folder_folders.append(i)
+            else:
+                folder_names.append(i)
+
+        # делаем ресайзы в конкретных папках
+
+
+        print(folder_names)
+        print(folder_folders)
+        return
+
+        for dict_ in folder_folders:
+            CompressUtils.resize_folder_folders(
+                dict_.get("folder_name"),
+                dict_.get("folder_size")
+                )
+
+        # делаем ресайзы в папках с именами
         for root, _, files in os.walk(root_dir):
 
             for filename in files:
@@ -83,7 +100,10 @@ class CompressThread(QThread):
                     image_path = os.path.join(root, filename)
 
                     for data_dict in data:
-                        if os.sep + data_dict["folder_name"] + os.sep in image_path:
+                        folder_name = data.get("folder_name")
+
+                        if os.sep + folder_name + os.sep in image_path:
+                            print("is not dir", folder_name)
                             try:
                                 CompressUtils.resize_image(image_path=image_path, max_size_kb=data_dict["file_size"])
                             except Exception as e:

@@ -174,7 +174,7 @@ class FolderWidget(QWidget):
         except Exception as e:
             return None
         
-        left_input_value = self.left_input.text().strip()
+        left_input_value = self.path_.strip()
         if not left_input_value:
             return None
 
