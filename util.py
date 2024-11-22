@@ -29,7 +29,11 @@ class CompressUtils:
     @staticmethod
     def resize_folder_folders(folder_path, max_size_kb: int):
         for root, dirs, files in os.walk(folder_path):
+            if not Shared.flag:
+                return
             for file in files:
+                if not Shared.flag:
+                    return
                 src: str = os.path.join(root, file)
                 if src.lower().endswith(('.jpg', '.jpeg', '.png')):
                     CompressUtils.resize_image(src, max_size_kb)
