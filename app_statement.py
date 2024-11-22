@@ -383,6 +383,8 @@ class AppStatement(QWidget):
         self.deleteLater()
 
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
+        self.raise_()
+        self.show()
         if a0.mimeData().hasUrls():
             a0.acceptProposedAction()
         return super().dragEnterEvent(a0)
