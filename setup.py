@@ -25,6 +25,7 @@ DATA_FILES = [
     ]
 
 OPTIONS = {"iconfile": "icon.icns",
+           'packages': ['PIL'],
            "plist": {"CFBundleName": Cfg.app_name,
                      "CFBundleShortVersionString": Cfg.app_ver,
                      "CFBundleVersion": Cfg.app_ver,
