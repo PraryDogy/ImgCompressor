@@ -225,13 +225,13 @@ class AppStatement(QWidget):
 
 
 
-        h_wid = QWidget()
-        h_wid.setFixedHeight(50)
-        self.v_layout.addWidget(h_wid)
+        self.add_main_folder_wid = QWidget()
+        self.add_main_folder_wid.setFixedHeight(50)
+        self.v_layout.addWidget(self.add_main_folder_wid)
 
         h_layout = QHBoxLayout()
         h_layout.setContentsMargins(0, 0, 0, 0)
-        h_wid.setLayout(h_layout)
+        self.add_main_folder_wid.setLayout(h_layout)
 
         self.browse_btn = QPushButton('Обзор')
         self.browse_btn.clicked.connect(self.browse_folder)
@@ -398,7 +398,7 @@ class AppStatement(QWidget):
 
             if self.list_widget.underMouse():
                 self.add_folder_cmd(path)
-            else:
+            elif self.add_main_folder_wid.underMouse():
                 self.browse_label_path.setWordWrap(True)
                 self.browse_label_path.setText(path)
                 self.my_path = path
