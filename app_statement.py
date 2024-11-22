@@ -51,7 +51,7 @@ class StatementWidget(QWidget):
         QTimer.singleShot(500, lambda: self.left_input.setStyleSheet("padding-left: 5px;"))
 
         right_wid = QWidget(parent=self)
-        h_layout.addWidget(right_wid)
+        h_layout.addWidget(right_wid, alignment=Qt.AlignmentFlag.AlignRight)
         right_layout = QVBoxLayout()
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_wid.setLayout(right_layout)
@@ -61,6 +61,7 @@ class StatementWidget(QWidget):
 
         self.right_input = QLineEdit(parent=self)
         self.right_input.setFixedHeight(30)
+        self.right_input.setFixedWidth(300)
         self.right_input.setPlaceholderText("Напишите размер в килобайтах")
         right_layout.addWidget(self.right_input)
 
@@ -139,7 +140,7 @@ class FolderWidget(QWidget):
         left_layout.addWidget(self.left_input)
 
         right_wid = QWidget(parent=self)
-        h_layout.addWidget(right_wid)
+        h_layout.addWidget(right_wid, alignment=Qt.AlignmentFlag.AlignRight)
         right_layout = QVBoxLayout()
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_wid.setLayout(right_layout)
@@ -149,6 +150,7 @@ class FolderWidget(QWidget):
 
         self.right_input = QLineEdit(parent=self)
         self.right_input.setFixedHeight(30)
+        self.right_input.setFixedWidth(300)
         self.right_input.setPlaceholderText("Напишите размер в килобайтах")
         right_layout.addWidget(self.right_input)
 
