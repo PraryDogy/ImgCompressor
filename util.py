@@ -12,19 +12,22 @@ class CompressUtils:
 
     @staticmethod
     def resize_image(image_path: str, max_size_kb: int):
-        current_size_kb = int(os.path.getsize(image_path) // 1024.0)
+        try:
+            current_size_kb = int(os.path.getsize(image_path) // 1024.0)
 
-        if current_size_kb <= max_size_kb:
-            return
+            if current_size_kb <= max_size_kb:
+                return
 
-        img = Image.open(image_path)
-        quality = 95
+            img = Image.open(image_path)
+            quality = 95
 
-        while True:
-            img.save(image_path, optimize=True, quality=quality)
-            if os.path.getsize(image_path) <= max_size_kb * 1024 or quality <= 10:
-                break
-            quality -= 5
+            while True:
+                img.save(image_path, optimize=True, quality=quality)
+                if os.path.getsize(image_path) <= max_size_kb * 1024 or quality <= 10:
+                    break
+                quality -= 5
+        except Exception:
+            ...
 
     @staticmethod
     def resize_folder_folders(folder_path, max_size_kb: int):
