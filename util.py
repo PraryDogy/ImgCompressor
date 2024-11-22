@@ -12,7 +12,8 @@ class CompressUtils:
 
     @staticmethod
     def resize_image(image_path: str, max_size_kb: int):
-        current_size_kb = os.path.getsize(image_path) / 1024.0
+        current_size_kb = int(os.path.getsize(image_path) // 1024.0)
+
         if current_size_kb <= max_size_kb:
             return
 
@@ -31,11 +32,7 @@ class CompressUtils:
             for file in files:
                 src: str = os.path.join(root, file)
                 if src.lower().endswith(('.jpg', '.jpeg', '.png')):
-                    try:
-                        CompressUtils.resize_image(src, max_size_kb)
-                    except Exception as e:
-                        print(e)
-                        continue
+                    CompressUtils.resize_image(src, max_size_kb)
 
 
 class CompressThread(QThread):
@@ -76,15 +73,10 @@ class CompressThread(QThread):
 
         # делаем ресайзы в конкретных папках
 
-
-        print(folder_names)
-        print(folder_folders)
-        return
-
         for dict_ in folder_folders:
             CompressUtils.resize_folder_folders(
                 dict_.get("folder_name"),
-                dict_.get("folder_size")
+                dict_.get("file_size")
                 )
 
         # делаем ресайзы в папках с именами
@@ -99,16 +91,11 @@ class CompressThread(QThread):
 
                     image_path = os.path.join(root, filename)
 
-                    for data_dict in data:
-                        folder_name = data.get("folder_name")
+                    for data_dict in folder_names:
+                        folder_name = data_dict.get("folder_name")
 
                         if os.sep + folder_name + os.sep in image_path:
-                            print("is not dir", folder_name)
-                            try:
-                                CompressUtils.resize_image(image_path=image_path, max_size_kb=data_dict["file_size"])
-                            except Exception as e:
-                                print(e)
-                            break
+                            CompressUtils.resize_image(image_path=image_path, max_size_kb=data_dict["file_size"])
 
 
 

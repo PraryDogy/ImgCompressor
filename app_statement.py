@@ -128,7 +128,7 @@ class FolderWidget(QWidget):
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_wid.setLayout(left_layout)
 
-        left_lbl = QLabel(parent=self, text=f" Выполнить в этой папке")
+        left_lbl = QLabel(parent=self, text=f" Сжать ТОЛЬКО в этой папке")
         left_layout.addWidget(left_lbl)
 
         if len(path) > 50:
