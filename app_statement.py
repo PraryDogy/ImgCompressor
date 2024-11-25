@@ -280,9 +280,16 @@ class AppStatement(QWidget):
         self.v_layout.addWidget(self.start_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.statement_widgets: list[StatementWidget] = []
+        self.disable_btns(True)
 
-        for i in (self.add_btn, self.add_btn_two, self.list_widget, self.start_btn):
-            i.setDisabled(True)
+    def disable_btns(self, b: bool):
+        for i in (
+            self.add_btn,
+            self.add_btn_two,
+            self.list_widget,
+            self.start_btn
+            ):
+            i.setDisabled(b)
 
     def browse_folder(self):
         directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
@@ -290,9 +297,7 @@ class AppStatement(QWidget):
             self.browse_label_path.setWordWrap(True)
             self.browse_label_path.setText(directory)
             self.my_path = directory
-            
-            for i in (self.add_btn, self.add_btn_two, self.list_widget, self.start_btn):
-                i.setDisabled(False)
+            self.disable_btns(False)
 
     def add_statement_cmd(self):
         list_item = QListWidgetItem()
@@ -406,11 +411,13 @@ class AppStatement(QWidget):
         if os.path.isdir(path):
 
             if self.list_widget.underMouse():
-                self.add_folder_cmd(path)
+                if self.my_path:
+                    self.add_folder_cmd(path)
             elif self.add_main_folder_wid.underMouse():
                 self.browse_label_path.setWordWrap(True)
                 self.browse_label_path.setText(path)
                 self.my_path = path
+                self.disable_btns(False)
                 return super().dropEvent(a0)
         
     def switch_widgets(self, disabled: bool):
