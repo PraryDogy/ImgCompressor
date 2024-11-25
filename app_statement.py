@@ -45,7 +45,7 @@ class StatementWidget(QWidget):
 
         self.left_input = QLineEdit(parent=self)
         self.left_input.setFixedHeight(30)
-        self.left_input.setPlaceholderText("Напишите имя папки")
+        self.left_input.setPlaceholderText("Имя папки")
         left_layout.addWidget(self.left_input)
 
         self.left_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
@@ -62,8 +62,8 @@ class StatementWidget(QWidget):
 
         self.right_input = QLineEdit(parent=self)
         self.right_input.setFixedHeight(30)
-        self.right_input.setFixedWidth(300)
-        self.right_input.setPlaceholderText("Напишите размер в килобайтах")
+        self.right_input.setFixedWidth(200)
+        self.right_input.setPlaceholderText("Размер в килобайтах")
         right_layout.addWidget(self.right_input)
 
         self.right_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
@@ -151,8 +151,8 @@ class FolderWidget(QWidget):
 
         self.right_input = QLineEdit(parent=self)
         self.right_input.setFixedHeight(30)
-        self.right_input.setFixedWidth(300)
-        self.right_input.setPlaceholderText("Напишите размер в килобайтах")
+        self.right_input.setFixedWidth(200)
+        self.right_input.setPlaceholderText("Размер в килобайтах")
         right_layout.addWidget(self.right_input)
 
         self.right_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
