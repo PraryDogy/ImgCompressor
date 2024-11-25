@@ -260,10 +260,10 @@ class AppStatement(QWidget):
         self.add_btn.setFixedWidth(200)
         h_layout_.addWidget(self.add_btn, alignment=Qt.AlignmentFlag.AlignLeft)
 
-        # self.add_btn = QPushButton("Добавить папку")
-        # self.add_btn.clicked.connect(self.add_folder_cmd)
-        # self.add_btn.setFixedWidth(200)
-        # h_layout_.addWidget(self.add_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.add_btn = QPushButton("Добавить папку")
+        self.add_btn.clicked.connect(self.btn_add_folder_cmd)
+        self.add_btn.setFixedWidth(200)
+        h_layout_.addWidget(self.add_btn, alignment=Qt.AlignmentFlag.AlignLeft)
 
         self.list_widget = QListWidget(parent=self)
         self.list_widget.verticalScrollBar().setSingleStep(15)
@@ -422,3 +422,8 @@ class AppStatement(QWidget):
         self.list_widget.addItem(list_item)
         self.list_widget.setItemWidget(list_item, wid)
         self.statement_widgets.append(wid)
+
+    def btn_add_folder_cmd(self):
+        directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
+        if directory:
+            self.add_folder_cmd(folder_path=directory)
