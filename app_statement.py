@@ -260,10 +260,10 @@ class AppStatement(QWidget):
         self.add_btn.setFixedWidth(200)
         h_layout_.addWidget(self.add_btn, alignment=Qt.AlignmentFlag.AlignLeft)
 
-        self.add_btn = QPushButton("Добавить папку")
-        self.add_btn.clicked.connect(self.btn_add_folder_cmd)
-        self.add_btn.setFixedWidth(200)
-        h_layout_.addWidget(self.add_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.add_btn_two = QPushButton("Добавить папку")
+        self.add_btn_two.clicked.connect(self.btn_add_folder_cmd)
+        self.add_btn_two.setFixedWidth(200)
+        h_layout_.addWidget(self.add_btn_two, alignment=Qt.AlignmentFlag.AlignLeft)
 
         self.list_widget = QListWidget(parent=self)
         self.list_widget.verticalScrollBar().setSingleStep(15)
@@ -281,12 +281,18 @@ class AppStatement(QWidget):
 
         self.statement_widgets: list[StatementWidget] = []
 
+        for i in (self.add_btn, self.add_btn_two, self.list_widget, self.start_btn):
+            i.setDisabled(True)
+
     def browse_folder(self):
         directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
         if directory:
             self.browse_label_path.setWordWrap(True)
             self.browse_label_path.setText(directory)
             self.my_path = directory
+            
+            for i in (self.add_btn, self.add_btn_two, self.list_widget, self.start_btn):
+                i.setDisabled(False)
 
     def add_statement_cmd(self):
         list_item = QListWidgetItem()
