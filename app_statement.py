@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                              QVBoxLayout, QWidget)
 
 from cfg import Cfg
-from utils import CompressThread
+from utils import StatementTask
 
 
 class Shared:
@@ -301,15 +301,6 @@ class AppStatement(QWidget):
 
         self.statement_widgets: list[StatementWidget] = []
 
-    def disable_btns(self, b: bool):
-        for i in (
-            self.add_btn,
-            self.add_btn_two,
-            self.list_widget,
-            self.start_btn
-            ):
-            i.setDisabled(b)
-
     def browse_folder(self):
         directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
         if directory:
@@ -354,9 +345,12 @@ class AppStatement(QWidget):
                 t = "Заполните все данные в условиях.\nСлева имя папки, справа целое число"
                 self.show_warning(t)
                 return
+            
+        print(data)
+        return
 
         try:
-            self.task = CompressThread(root_dir=self.main_folder, data=data)
+            self.task = StatementTask(root_dir=self.main_folder, data=data)
             # self.task.finished.connect(self.finished_task)
             self.task.start()
         except Exception as e:
@@ -420,8 +414,6 @@ class AppStatement(QWidget):
                 if not self.main_folder:
                     self.show_warning("Сначала укажите главную папку")
                     break
-
-                print(self.main_folder, path_)
 
                 if self.main_folder in path_ and self.main_folder != path_:
                     self.add_folder_cmd(path_)

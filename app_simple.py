@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QLabel, QLineEdit,
 
 from app_win_process import ProcessWin
 from cfg import Cfg
-from utils import ComprerssNoState
+from utils import NoStatementTask
 
 
 class Shared:
@@ -168,7 +168,7 @@ class AppSimple(QWidget):
                 self.show_warning(t)
                 return
 
-        self.task_ = ComprerssNoState(data=data)
+        self.task_ = NoStatementTask(data=data)
 
         self.win_ = ProcessWin()
 
