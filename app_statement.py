@@ -394,14 +394,20 @@ class AppStatement(QWidget):
     def dropEvent(self, a0: QDropEvent | None) -> None:
         path = a0.mimeData().urls()[0].toLocalFile()
 
-        if self.main_folder:
-            ...
 
-            
-        if os.path.isdir(path) and self.main_folder in path:
+        if self.list_widget.underMouse():
 
-            if self.list_widget.underMouse():
-                self.add_folder_cmd(path)
+            if self.main_folder:
+
+                if self.main_folder in path:
+                    self.add_folder_cmd(path)
+                else:
+                    self.show_warning("Файл/папка должны быть в главной папке")
+
+            else:
+                self.show_warning("Сначала укажите главную папку")
+
+        else:
 
             for i in (self.browseTitle, self.browse_wid, self.btns_wid):
                 
