@@ -392,30 +392,35 @@ class AppStatement(QWidget):
         return super().dragLeaveEvent(a0)
 
     def dropEvent(self, a0: QDropEvent | None) -> None:
-        path = a0.mimeData().urls()[0].toLocalFile()
+        paths = a0.mimeData().urls()
 
+        for path_ in paths:
+            # если файл перетянули на список
+            if self.list_widget.underMouse():
 
-        if self.list_widget.underMouse():
+                # если уже выбрана главная папка
+                if self.main_folder:
+                    
+                    # если папка в главной папка
+                    if self.main_folder in path_:
+                        self.add_folder_cmd(path_)
+                    
 
-            if self.main_folder:
+                    else:
+                        self.show_warning("Файл/папка должны быть в главной папке")
 
-                if self.main_folder in path:
-                    self.add_folder_cmd(path)
                 else:
-                    self.show_warning("Файл/папка должны быть в главной папке")
+                    self.show_warning("Сначала укажите главную папку")
 
+            # если файл перетнули в другой место
             else:
-                self.show_warning("Сначала укажите главную папку")
 
-        else:
-
-            for i in (self.browseTitle, self.browse_wid, self.btns_wid):
-                
-                if i.underMouse():
-                    self.browse_label_path.setWordWrap(True)
-                    self.browse_label_path.setText(path)
-                    self.main_folder = path
-                    break
+                for i in (self.browseTitle, self.browse_wid, self.btns_wid):
+                    if i.underMouse() and os.path.isfile(path_):
+                            self.browse_label_path.setWordWrap(True)
+                            self.browse_label_path.setText(path_)
+                            self.main_folder = path_
+                            break
 
         return super().dropEvent(a0)
 
