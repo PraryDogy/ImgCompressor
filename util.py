@@ -5,38 +5,108 @@ from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 
 
+IMG_EXTS = ('.jpg', '.jpeg', '.png')
+
+
+class Utils:
+
+    @classmethod
+    def resize_image(cls, img_src: str, max_size: int):
+        current_size_kb = int(os.path.getsize(img_src) // 1024.0)
+
+        if current_size_kb <= max_size:
+            return
+
+        img = Image.open(img_src)
+        quality = 95
+
+        while True:
+            img.save(img_src, optimize=True, quality=quality)
+            if os.path.getsize(img_src) <= max_size * 1024 or quality <= 10:
+                break
+            quality -= 5
+
+
+class ComprerssNoState(QThread):
+    can_run = True
+    finished_ = pyqtSignal()
+    feedback = pyqtSignal(dict)
+
+    def __init__(self, data: tuple[tuple[str, int]]):
+        super().__init__()
+        self.data = data
+
+        "current, total, place > app_win_process"
+        self.current: int = 0
+        self.total: int = 0
+
+    def run(self):
+        self.get_total()
+
+        for single_data in self.data:
+
+            if not self.can_run:
+                return
+
+            path, max_size_kb = single_data
+            self.walk_dir(
+                path=path,
+                max_size_kb=max_size_kb
+            )
+
+        self.finished_.emit()
+
+    def get_total(self):
+
+        for single_data in self.data:
+
+            path, max_size_kb = single_data
+
+            if not self.can_run:
+                return
+
+            for root, dirs, files in os.walk(path):
+                for file in files:
+
+                    if not self.can_run:
+                        return
+
+                    if file.endswith(IMG_EXTS):
+                        self.total += 1
+
+    def walk_dir(self, path: str, max_size_kb: int):
+
+        for root, dirs, files in os.walk(path):
+
+            for file in files:
+
+                if not self.can_run:
+                    return
+
+                if file.endswith(IMG_EXTS):
+                    img_src = os.path.join(root, file)
+                    try:
+                        Utils.resize_image(
+                            img_src=img_src,
+                            max_size=max_size_kb
+                        )
+
+                    except Exception as e:
+                        continue
+
+                    "total, current, place > app_win_process"
+                    self.current += 1
+                    data_ = {
+                        "total": self.total,
+                        "current": self.current,
+                        "place": root
+                    }
+                    self.feedback.emit(data_)
+
+
+
 class Shared:
     flag = True
-
-
-class ProcessWin(QWidget):
-    stop_ = pyqtSignal()
-    set_labels = pyqtSignal(dict)
-
-
-    def __init__(self):
-        super().__init__()
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-
-        v_lay = QVBoxLayout()
-        self.setLayout(v_lay)
-        
-        self.total_label = QLabel(text="")
-        v_lay.addWidget(self.total_label)
-
-        self.place_label = QLabel(text="")
-        v_lay.addWidget(self.place_label)
-
-        self.stop_btn = QPushButton("Стоп")
-        self.stop_btn.clicked.connect(self.stop_.emit)
-        v_lay.addWidget(self.stop_btn)
-
-        self.set_labels.connect(self.set_labels_cmd)
-
-    def set_labels_cmd(self, current: int, total: int, place: str):
-        self.total_label.setText(f"Сжато: {current} из {total}")
-        self.place_label.setText(place)
-
 
 class CompressUtils:
 
@@ -73,7 +143,7 @@ class CompressUtils:
 
 
 class CompressThread(QThread):
-    finished = pyqtSignal()
+    finished_ = pyqtSignal()
     force_cancel = pyqtSignal()
 
     def __init__(self, root_dir: str, data: dict):
