@@ -34,25 +34,6 @@ class Utils:
             pass
 
 
-    @classmethod
-    def resize_folder_folders(cls, folder_path, max_size_kb: int):
-
-        for root, dirs, files in os.walk(folder_path):
-
-            if not Shared.flag:
-                return
-
-            for file in files:
-
-                if not Shared.flag:
-                    return
-
-                src: str = os.path.join(root, file)
-
-                if src.lower().endswith(IMG_EXTS):
-                    cls.resize_image(src, max_size_kb)
-
-
 class NoStatementTask(QThread):
     finished_ = pyqtSignal()
     feedback = pyqtSignal(dict)
@@ -161,6 +142,7 @@ class NoStatementTask(QThread):
                     }
                     self.feedback.emit(data_)
 
+
 class StatementTask(QThread):
     finished_ = pyqtSignal()
     force_cancel = pyqtSignal()
@@ -174,6 +156,8 @@ class StatementTask(QThread):
         self.force_cancel.connect(self.stop_cmd)
         self.root_dir = root_dir
         self.data = data
+
+        self.can_run = True
 
     def run(self):
         Shared.flag = True
@@ -205,13 +189,21 @@ class StatementTask(QThread):
 
         # делаем ресайзы в конкретных папках
         for dict_ in folder_folders:
-            Utils.resize_folder_folders(
+
+            if not self.can_run:
+                return
+
+            self.resize_folder_folders(
                 dict_.get("folder_name"),
                 dict_.get("file_size")
                 )
             
         # делаем ресайзы в конкретных папках
         for dict_ in files_:
+
+            if not self.can_run:
+                return
+
             Utils.resize_image(
                 dict_.get("folder_name"),
                 dict_.get("file_size")
@@ -222,7 +214,7 @@ class StatementTask(QThread):
 
             for filename in files:
 
-                if not Shared.flag:
+                if not self.can_run:
                     return
 
                 if filename.lower().endswith(IMG_EXTS):
@@ -233,7 +225,26 @@ class StatementTask(QThread):
                         folder_name = data_dict.get("folder_name")
 
                         if os.sep + folder_name + os.sep in image_path:
-                            Utils.resize_image(
-                                image_path=image_path,
-                                max_size_kb=data_dict["file_size"]
-                            )
+                            if not self.can_run:
+
+                                Utils.resize_image(
+                                    image_path=image_path,
+                                    max_size_kb=data_dict["file_size"]
+                                )
+
+    def resize_folder_folders(self, folder_path, max_size_kb: int):
+
+        for root, dirs, files in os.walk(folder_path):
+
+            if not Shared.flag:
+                return
+
+            for file in files:
+
+                if not Shared.flag:
+                    return
+
+                src: str = os.path.join(root, file)
+
+                if src.lower().endswith(IMG_EXTS):
+                    Utils.resize_image(src, max_size_kb)
