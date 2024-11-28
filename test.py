@@ -1,4 +1,4 @@
-
+import os
 
 # Функция находит внутри Downloads
 # Все папки с именем ГО и выводит 100
@@ -8,35 +8,6 @@
 # Файл file.jpg и выводит 500
 # Файл file 2.jpg и выводит 500
 # Остальные файлы и папки в Downloads не трогает
-
-
-
-import os
-
-def find_and_print_sizes(src, named_folders, single_folders, single_files):
-    for root, dirs, files in os.walk(src):
-        # Проверяем папки по имени
-        for folder in dirs:
-            for named in named_folders:
-                if folder == named["folder_name"]:
-                    print(named["size"])
-                    break
-        
-        # Проверяем папки по пути
-        for folder in dirs:
-            folder_path = os.path.join(root, folder)
-            for single in single_folders:
-                if folder_path == single["folder_name"]:
-                    print(single["size"])
-                    break
-
-        # Проверяем файлы
-        for file in files:
-            file_path = os.path.join(root, file)
-            for single in single_files:
-                if file_path == single["folder_name"]:
-                    print(single["size"])
-                    break
 
 
 src = "/Users/Loshkarev/Desktop/test"
@@ -56,9 +27,36 @@ single_folders = [
 ]
 
 single_files = [
-    {"folder_name": src + "/file.jpg", "size": 500},
-    {"folder_name": src + "/file_2.jpg", "size": 600}
+    {"folder_name": "/Users/Loshkarev/Desktop/test/single files/file 2.jpg", "size": 500},
+    {"folder_name": "/Users/Loshkarev/Desktop/test/file 1.jpg", "size": 600}
 ]
 
+for root, dirs, files in os.walk(src):
 
-find_and_print_sizes(src, named_folders, single_files, single_files)
+    for dir in dirs:
+        
+        for data in named_folders:
+            if dir == data.get("folder_name"):
+                print(os.path.join(root, dir))
+                ...
+
+    for dir in dirs:
+
+        src_ = os.path.join(root, dir)
+
+        for data in single_folders:
+
+            if src_ == data.get("folder_name"):
+                print(src_)
+                ...
+
+    for file in files:
+
+        src = os.path.join(root, file)
+
+        for data in single_files:
+
+            if src == data.get("folder_name"):
+
+                print(src)
+                ...
