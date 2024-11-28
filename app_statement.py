@@ -395,34 +395,27 @@ class AppStatement(QWidget):
         paths = a0.mimeData().urls()
 
         for path_ in paths:
-            # если файл перетянули на список
-            if self.list_widget.underMouse():
+            path_ = path_.toLocalFile()
 
-                # если уже выбрана главная папка
-                if self.main_folder:
-                    
-                    # если папка в главной папка
-                    if self.main_folder in path_:
-                        self.add_folder_cmd(path_)
-                    
-
-                    else:
-                        self.show_warning("Файл/папка должны быть в главной папке")
-
-                else:
+            if self.list_widget.underMouse() or self.btns_wid.underMouse():
+                print(1)
+                if not self.main_folder:
                     self.show_warning("Сначала укажите главную папку")
+                    break
 
-            # если файл перетнули в другой место
+                if self.main_folder in path_:
+                    self.add_folder_cmd(path_)
+                else:
+                    self.show_warning("Файл/папка должны быть в главной папке")
             else:
+                if os.path.isdir(path_):
+                    self.browse_label_path.setWordWrap(True)
+                    self.browse_label_path.setText(path_)
+                    self.main_folder = path_
+                    break
 
-                for i in (self.browseTitle, self.browse_wid, self.btns_wid):
-                    if i.underMouse() and os.path.isfile(path_):
-                            self.browse_label_path.setWordWrap(True)
-                            self.browse_label_path.setText(path_)
-                            self.main_folder = path_
-                            break
+        super().dropEvent(a0)
 
-        return super().dropEvent(a0)
 
     def add_folder_cmd(self, folder_path: str):
         list_item = QListWidgetItem()
