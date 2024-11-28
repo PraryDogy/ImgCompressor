@@ -177,7 +177,7 @@ class AppSimple(QWidget):
 
         self.win_ = ProcessWin()
 
-        self.win_.stop_.connect(lambda: self.task_.stop_cmd)
+        self.win_.stop_.connect(self.task_.stop_cmd)
         self.task_.finished_.connect(self.finished_task)
         self.task_.feedback.connect(lambda data: self.win_.set_labels_cmd(**data))
 

@@ -36,8 +36,9 @@ class ProcessWin(QWidget):
 
     def set_labels_cmd(self, current: int, total: int, place: str):
         try:
+            place = os.path.basename(place.strip().strip(os.sep))
             self.total_label.setText(f"Сжато: {current} из {total}")
-            self.place_label.setText(os.path.basename(place))
+            self.place_label.setText(f"Папка: {place}")
         except RuntimeError:
             ...
 
