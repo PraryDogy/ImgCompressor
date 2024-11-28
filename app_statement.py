@@ -197,7 +197,7 @@ class AppStatement(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.my_path = None
+        self.main_folder = None
         self.initUI()
 
     def initUI(self):
@@ -289,7 +289,6 @@ class AppStatement(QWidget):
         self.v_layout.addWidget(self.start_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.statement_widgets: list[StatementWidget] = []
-        self.disable_btns(True)
 
     def disable_btns(self, b: bool):
         for i in (
@@ -305,8 +304,7 @@ class AppStatement(QWidget):
         if directory:
             self.browse_label_path.setWordWrap(True)
             self.browse_label_path.setText(directory)
-            self.my_path = directory
-            self.disable_btns(False)
+            self.main_folder = directory
 
     def add_statement_cmd(self):
         list_item = QListWidgetItem()
@@ -330,7 +328,7 @@ class AppStatement(QWidget):
         if not self.statement_widgets:
             return
 
-        if not self.my_path:
+        if not self.main_folder:
             self.show_warning("Укажите папку")
             return
 
@@ -347,7 +345,7 @@ class AppStatement(QWidget):
                 return
 
         try:
-            self.task = CompressThread(root_dir=self.my_path, data=data)
+            self.task = CompressThread(root_dir=self.main_folder, data=data)
             # self.task.finished.connect(self.finished_task)
             self.task.start()
         except Exception as e:
@@ -395,19 +393,22 @@ class AppStatement(QWidget):
 
     def dropEvent(self, a0: QDropEvent | None) -> None:
         path = a0.mimeData().urls()[0].toLocalFile()
-        if os.path.isdir(path):
+
+        if self.main_folder:
+            ...
+
+            
+        if os.path.isdir(path) and self.main_folder in path:
 
             if self.list_widget.underMouse():
-                if self.my_path:
-                    self.add_folder_cmd(path)
+                self.add_folder_cmd(path)
 
             for i in (self.browseTitle, self.browse_wid, self.btns_wid):
                 
                 if i.underMouse():
                     self.browse_label_path.setWordWrap(True)
                     self.browse_label_path.setText(path)
-                    self.my_path = path
-                    self.disable_btns(False)
+                    self.main_folder = path
                     break
 
         return super().dropEvent(a0)
