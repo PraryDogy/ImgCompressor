@@ -78,10 +78,6 @@ class AppSimple(QWidget):
     def __init__(self):
         super().__init__()
 
-        fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
-        fl = fl  | Qt.WindowType.WindowCloseButtonHint
-        self.setWindowFlags(fl)
-
         self.setAcceptDrops(True)
         self.initUI()
 
@@ -156,10 +152,10 @@ class AppSimple(QWidget):
         del item
 
     def start_btn_start_cmd(self):
-        self.win_ = ProcessWin()
-        self.win_.center_relative_parent(parent=self)
-        self.win_.show()
-        return
+        # self.win_ = ProcessWin()
+        # self.win_.center_relative_parent(parent=self)
+        # self.win_.show()
+        # return
 
         if not self.statement_widgets:
             return
@@ -183,7 +179,7 @@ class AppSimple(QWidget):
 
         self.win_.stop_.connect(lambda: self.task_.stop_cmd)
         self.task_.finished_.connect(self.finished_task)
-        self.task_.feedback.connect(lambda data: self.win_.set_labels_cmd**data)
+        self.task_.feedback.connect(lambda data: self.win_.set_labels_cmd(**data))
 
         self.task_.start()
         self.win_.center_relative_parent(parent=self)

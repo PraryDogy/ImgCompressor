@@ -197,10 +197,6 @@ class AppStatement(QWidget):
     def __init__(self):
         super().__init__()
 
-        fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
-        fl = fl  | Qt.WindowType.WindowCloseButtonHint
-        self.setWindowFlags(fl)
-
         self.my_path = None
         self.initUI()
 

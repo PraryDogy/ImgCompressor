@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
@@ -33,8 +35,11 @@ class ProcessWin(QWidget):
         self.feedback.connect(lambda data: self.set_labels_cmd(**data))
 
     def set_labels_cmd(self, current: int, total: int, place: str):
-        self.total_label.setText(f"Сжато: {current} из {total}")
-        self.place_label.setText(place)
+        try:
+            self.total_label.setText(f"Сжато: {current} из {total}")
+            self.place_label.setText(os.path.basename(place))
+        except RuntimeError:
+            ...
 
     def center_relative_parent(self, parent: QWidget):
 
