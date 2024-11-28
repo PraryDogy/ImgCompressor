@@ -19,30 +19,17 @@ class Shared:
 class DynamicWidget(QWidget):
     removed = pyqtSignal()
 
-    def __init__(self, title: str, parent: QWidget = None):
-        super().__init__(parent)
-        self.setAcceptDrops(True)
-        self.my_parent = parent
+    def __init__(self, parent: QWidget, path_: str):
+        super().__init__(parent=parent)
+        self.parent_ = parent
+        self.path_ = path_
 
         v_layout = QVBoxLayout()
         v_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(v_layout)
 
-        up_wid = QWidget(parent=self)
-        v_layout.addWidget(up_wid)
-
-        up_layout = QHBoxLayout()
-        up_layout.setContentsMargins(0, 0, 0, 0)
-        up_wid.setLayout(up_layout)
-
-        self.browse_btn = QPushButton(parent=self, text="Обзор")
-        self.browse_btn.setFixedWidth(100)
-        self.browse_btn.clicked.connect(self.browse_btn_cmd)
-        up_layout.addWidget(self.browse_btn)
-
-        self.browse_label = QLabel(parent=self, text="Нажмите обзор и выберите папку для сжатия изображений")
-        self.browse_label.setWordWrap(True)
-        up_layout.addWidget(self.browse_label)
+        self.path_lbl = QLabel(text=path_)
+        v_layout.addWidget(self.path_lbl)
 
         input_label = QLabel(parent=self, text=" До какого размера сжать в kb")
         v_layout.addWidget(input_label)
@@ -66,32 +53,9 @@ class DynamicWidget(QWidget):
 
     def remove_btn_cmd(self):
         self.removed.emit()
-
-    def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
-        if a0.mimeData().hasUrls():
-            a0.acceptProposedAction()
-        return super().dragEnterEvent(a0)
     
-    def dragLeaveEvent(self, a0: QDragLeaveEvent | None) -> None:
-        return super().dragLeaveEvent(a0)
-
-    def dropEvent(self, a0: QDropEvent | None) -> None:
-        path = a0.mimeData().urls()[0].toLocalFile()
-        if os.path.isdir(path):
-            self.browse_label.setText(path)
-            return super().dropEvent(a0)
-    
-    def browse_btn_cmd(self):
-        dest = QFileDialog.getExistingDirectory()
-
-        if dest:
-            self.browse_label.setText(dest)
-
     def get_data(self):
-        dest = self.browse_label.text()
-
-        if "Нажмите" in dest:
-            return None
+        dest = self.path_
 
         try:
             right_input_value = int(self.input_wid.text().strip())
@@ -114,6 +78,7 @@ class DynamicWidget(QWidget):
 class AppSimple(QWidget):
     def __init__(self):
         super().__init__()
+        self.setAcceptDrops(True)
         self.initUI()
 
     def initUI(self):
@@ -140,18 +105,16 @@ class AppSimple(QWidget):
         self.v_layout.addWidget(self.mode_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
 
+        t = [
+            "Сжатие без условий:",
+            "Перетяните одну или несколько папок и программа",
+            "сожмет все изображения внутри этих папок."
+        ]
 
+        t = "\n".join(t)
 
-        self.browseTitle = QLabel('Выберите одну или несколько папок')
+        self.browseTitle = QLabel(t)
         self.v_layout.addWidget(self.browseTitle)
-
-        self.add_btn = QPushButton("+ Добавить папку")
-        self.add_btn.clicked.connect(self.add_btn_cmd)
-        self.add_btn.setFixedWidth(200)
-        self.v_layout.addWidget(self.add_btn)
-
-
-
 
         self.list_widget = QListWidget(parent=self)
         self.list_widget.setSelectionMode(QListWidget.NoSelection)
@@ -169,9 +132,10 @@ class AppSimple(QWidget):
 
         self.statement_widgets: list[DynamicWidget] = []
 
-    def add_btn_cmd(self):
+    def add_btn_cmd(self, path_: str):
         list_item = QListWidgetItem()
-        wid = DynamicWidget(title="hello", parent=self)
+
+        wid = DynamicWidget(parent=self, path_=path_)
         wid.removed.connect(lambda: self.removed_cmd(list_item, wid))
         list_item.setSizeHint(wid.sizeHint())
         self.list_widget.addItem(list_item)
@@ -202,7 +166,6 @@ class AppSimple(QWidget):
                 t = "Заполните все данные в условиях.\nУкажите путь к папке, введите целое число"
                 self.show_warning(t)
                 return
-
 
         self.start_btn.setText("Стоп")
         self.start_btn.clicked.disconnect()
@@ -265,8 +228,41 @@ class AppSimple(QWidget):
         self.deleteLater()
 
     def switch_widgets(self, disabled: bool):
-        for i in (self.mode_btn, self.browseTitle, self.add_btn, self.list_widget):
+        for i in (self.mode_btn, self.browseTitle, self.list_widget):
             try:
                 i.setDisabled(disabled)
             except Exception as e:
                 print(e)
+
+
+
+
+    def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
+        self.raise_()
+        self.show()
+
+        if a0.mimeData().hasUrls():
+            a0.acceptProposedAction()
+        return super().dragEnterEvent(a0)
+    
+    def dragLeaveEvent(self, a0: QDragLeaveEvent | None) -> None:
+        return super().dragLeaveEvent(a0)
+
+    def dropEvent(self, a0: QDropEvent | None) -> None:
+        paths = a0.mimeData().urls()
+
+        for i in paths:
+            path_ = i.toLocalFile()
+
+            if os.path.isdir(path_):
+                self.add_btn_cmd(path_=path_)
+
+            #     if self.list_widget.underMouse():
+            #         if self.my_path:
+            #             self.add_folder_cmd(path)
+            #     elif self.add_main_folder_wid.underMouse():
+            #         self.browse_label_path.setWordWrap(True)
+            #         self.browse_label_path.setText(path)
+            #         self.my_path = path
+            #         self.disable_btns(False)
+            #         return super().dropEvent(a0)
