@@ -203,7 +203,7 @@ class AppStatement(QWidget):
     def initUI(self):
         self.setAcceptDrops(True)
         self.setWindowTitle(f'{Cfg.app_name}: сжатие по условиям')
-        self.setMinimumSize(560, 400)
+        self.setMinimumSize(560, 440)
 
         if Cfg.geo:
             self.setGeometry(Cfg.geo)
@@ -222,49 +222,57 @@ class AppStatement(QWidget):
 
 
 
-
-        self.browseTitle = QLabel('Выбранная папка:')
+        t = [
+            "Сжатие по условиям: укажите главную папку",
+            "",
+            "Добавьте условие:",
+            "Все папки с именем *** внутри главной папки будет сжаты до ***",
+            "",
+            "Добавьте отдельные папки/файлы:",
+            "Все папки внутри главной папки, кроме *** буду сжаты до ***",
+            "а добавленная папка до ***"
+        ]
+        t = "\n".join(t)
+        self.browseTitle = QLabel(t)
         self.v_layout.addWidget(self.browseTitle)
 
 
 
 
-        self.add_main_folder_wid = QWidget()
-        self.add_main_folder_wid.setFixedHeight(50)
-        self.v_layout.addWidget(self.add_main_folder_wid)
+        self.browse_wid = QWidget()
+        self.browse_wid.setFixedHeight(50)
+        self.v_layout.addWidget(self.browse_wid)
 
-        h_layout = QHBoxLayout()
-        h_layout.setContentsMargins(0, 0, 0, 0)
-        self.add_main_folder_wid.setLayout(h_layout)
+        browse_lay = QHBoxLayout()
+        browse_lay.setContentsMargins(0, 0, 0, 0)
+        self.browse_wid.setLayout(browse_lay)
 
-        self.browse_btn = QPushButton('Обзор')
+        self.browse_btn = QPushButton("Главная папка")
         self.browse_btn.clicked.connect(self.browse_folder)
         self.browse_btn.setFixedWidth(200)
-        h_layout.addWidget(self.browse_btn)
+        browse_lay.addWidget(self.browse_btn)
 
-        self.browse_label_path = QLabel('Нажмите обзор и выберите папку')
-        h_layout.addWidget(self.browse_label_path)
+        self.browse_label_path = QLabel('Можно перетянуть сюда главную папку')
+        browse_lay.addWidget(self.browse_label_path)
 
+        btns_wid = QWidget()
+        self.v_layout.addWidget(btns_wid)
 
-
-
-        h_wid_ = QWidget()
-        h_wid_.setFixedHeight(50)
-        self.v_layout.addWidget(h_wid_)
-
-        h_layout_ = QHBoxLayout()
-        h_layout_.setContentsMargins(0, 0, 0, 0)
-        h_wid_.setLayout(h_layout_)
+        btns_lay = QHBoxLayout()
+        btns_lay.setContentsMargins(0, 0, 0, 0)
+        btns_wid.setLayout(btns_lay)
 
         self.add_btn = QPushButton("Добавить условие")
         self.add_btn.clicked.connect(self.add_statement_cmd)
         self.add_btn.setFixedWidth(200)
-        h_layout_.addWidget(self.add_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        btns_lay.addWidget(self.add_btn)
 
         self.add_btn_two = QPushButton("Добавить папку")
         self.add_btn_two.clicked.connect(self.btn_add_folder_cmd)
         self.add_btn_two.setFixedWidth(200)
-        h_layout_.addWidget(self.add_btn_two, alignment=Qt.AlignmentFlag.AlignLeft)
+        btns_lay.addWidget(self.add_btn_two)
+        
+        btns_lay.addStretch()
 
         self.list_widget = QListWidget(parent=self)
         self.list_widget.verticalScrollBar().setSingleStep(15)
@@ -414,7 +422,7 @@ class AppStatement(QWidget):
             if self.list_widget.underMouse():
                 if self.my_path:
                     self.add_folder_cmd(path)
-            elif self.add_main_folder_wid.underMouse():
+            elif self.browse_wid.underMouse():
                 self.browse_label_path.setWordWrap(True)
                 self.browse_label_path.setText(path)
                 self.my_path = path
