@@ -8,6 +8,10 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 IMG_EXTS = ('.jpg', '.jpeg', '.png')
 
 
+class Shared:
+    flag = True
+
+
 class Utils:
 
     @classmethod
@@ -157,12 +161,6 @@ class NoStatementTask(QThread):
                     }
                     self.feedback.emit(data_)
 
-
-
-class Shared:
-    flag = True
-
-
 class StatementTask(QThread):
     finished_ = pyqtSignal()
     force_cancel = pyqtSignal()
@@ -173,7 +171,7 @@ class StatementTask(QThread):
         """
 
         super().__init__()
-        self.force_cancel.connect(self.force_cancel_cmd)
+        self.force_cancel.connect(self.stop_cmd)
         self.root_dir = root_dir
         self.data = data
 
@@ -182,7 +180,7 @@ class StatementTask(QThread):
         self.process_images(root_dir=self.root_dir, data=self.data)
         self.finished.emit()
 
-    def force_cancel_cmd(self):
+    def stop_cmd(self):
         Shared.flag = False
 
     def process_images(self, root_dir: str, data: list[dict]):
