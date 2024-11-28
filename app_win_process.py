@@ -22,7 +22,7 @@ class ProcessWin(QWidget):
         v_lay = QVBoxLayout()
         self.setLayout(v_lay)
         
-        self.total_label = QLabel(text="Сжато: вычисляю...")
+        self.total_label = QLabel(text="Подготовка")
         v_lay.addWidget(self.total_label)
 
         self.place_label = QLabel(text="")
