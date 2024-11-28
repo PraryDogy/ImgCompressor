@@ -172,28 +172,28 @@ class StatementTask(QThread):
         [ {"folder_name": str, "file_size": int}, ... ]
         """
 
-        folder_names: list[dict] = []
-        folder_folders: list[dict] = []
+        named_folders: list[dict] = []
+        single_folders: list[dict] = []
         files_: list[dict] = []
 
         for i in data:
 
             if os.path.isdir(i.get("folder_name")):
-                folder_folders.append(i)
+                single_folders.append(i)
 
             elif os.path.isfile(i.get("folder_name")):
                 files_.append(i)
 
             else:
-                folder_names.append(i)
+                named_folders.append(i)
 
         # делаем ресайзы в конкретных папках
-        for dict_ in folder_folders:
+        for dict_ in single_folders:
 
             if not self.can_run:
                 return
 
-            self.resize_folder_folders(
+            self.walk_folder(
                 dict_.get("folder_name"),
                 dict_.get("file_size")
                 )
@@ -210,29 +210,29 @@ class StatementTask(QThread):
                 )
 
         # делаем ресайзы в папках с именами
-        for root, _, files in os.walk(root_dir):
+        # for root, _, files in os.walk(root_dir):
 
-            for filename in files:
+        #     for filename in files:
 
-                if not self.can_run:
-                    return
+        #         if not self.can_run:
+        #             return
 
-                if filename.lower().endswith(IMG_EXTS):
+        #         if filename.lower().endswith(IMG_EXTS):
 
-                    image_path = os.path.join(root, filename)
+        #             image_path = os.path.join(root, filename)
 
-                    for data_dict in folder_names:
-                        folder_name = data_dict.get("folder_name")
+        #             for data_dict in folder_names:
+        #                 folder_name = data_dict.get("folder_name")
 
-                        if os.sep + folder_name + os.sep in image_path:
-                            if not self.can_run:
+        #                 if os.sep + folder_name + os.sep in image_path:
+        #                     if not self.can_run:
 
-                                Utils.resize_image(
-                                    image_path=image_path,
-                                    max_size_kb=data_dict["file_size"]
-                                )
+        #                         Utils.resize_image(
+        #                             image_path=image_path,
+        #                             max_size_kb=data_dict["file_size"]
+        #                         )
 
-    def resize_folder_folders(self, folder_path, max_size_kb: int):
+    def walk_folder(self, folder_path, max_size_kb: int):
 
         for root, dirs, files in os.walk(folder_path):
 
