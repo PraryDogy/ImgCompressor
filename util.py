@@ -28,17 +28,22 @@ class Utils:
 
 
 class ComprerssNoState(QThread):
-    can_run = True
     finished_ = pyqtSignal()
     feedback = pyqtSignal(dict)
 
-    def __init__(self, data: tuple[tuple[str, int]]):
+    def __init__(self, data: list[tuple[str, int]]):
+        """[ (place, max_size_kb) ]"""
         super().__init__()
+
         self.data = data
+        self.can_run = True
 
         "current, total, place > app_win_process"
         self.current: int = 0
         self.total: int = 0
+
+    def stop_cmd(self, *args):
+        self.can_run = False
 
     def run(self):
         self.get_total()

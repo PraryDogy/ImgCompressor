@@ -4,13 +4,17 @@ from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
 class ProcessWin(QWidget):
     stop_ = pyqtSignal()
-    set_labels = pyqtSignal(dict)
+    feedback = pyqtSignal(dict)
 
     def __init__(self):
         """current, total, place"""
 
         super().__init__()
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
+        fl = fl  | Qt.WindowType.WindowCloseButtonHint
+        self.setWindowFlags(fl)
+        self.setFixedSize(250, 150)
 
         v_lay = QVBoxLayout()
         self.setLayout(v_lay)
@@ -25,8 +29,17 @@ class ProcessWin(QWidget):
         self.stop_btn.clicked.connect(self.stop_.emit)
         v_lay.addWidget(self.stop_btn)
 
-        self.set_labels.connect(self.set_labels_cmd)
+        self.feedback.connect(lambda data: self.set_labels_cmd(**data))
 
     def set_labels_cmd(self, current: int, total: int, place: str):
         self.total_label.setText(f"Сжато: {current} из {total}")
         self.place_label.setText(place)
+
+    def center_relative_parent(self, parent: QWidget):
+
+        try:
+            geo = self.geometry()
+            geo.moveCenter(parent.geometry().center())
+            self.setGeometry(geo)
+        except (RuntimeError, Exception) as e:
+            pass

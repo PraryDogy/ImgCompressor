@@ -1,14 +1,14 @@
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal, QSize, QTimer
-from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent, QResizeEvent
-from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
-                             QLineEdit, QListWidget, QListWidgetItem,
-                             QMessageBox, QPushButton, QSpacerItem,
-                             QVBoxLayout, QWidget, QApplication)
+from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
+from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
+from PyQt5.QtWidgets import (QApplication, QFrame, QLabel, QLineEdit,
+                             QListWidget, QListWidgetItem, QMessageBox,
+                             QPushButton, QSpacerItem, QVBoxLayout, QWidget)
 
+from app_win_process import ProcessWin
 from cfg import Cfg
-from util import CompressThreadBased
+from util import ComprerssNoState
 
 
 class Shared:
@@ -21,6 +21,7 @@ class DynamicWidget(QWidget):
 
     def __init__(self, parent: QWidget, path_: str):
         super().__init__(parent=parent)
+    
         self.parent_ = parent
         self.path_ = path_
 
@@ -55,7 +56,8 @@ class DynamicWidget(QWidget):
         self.removed.emit()
     
     def get_data(self):
-        dest = self.path_
+        """place, max_size_kb"""
+        place = self.path_
 
         try:
             right_input_value = int(self.input_wid.text().strip())
@@ -63,10 +65,7 @@ class DynamicWidget(QWidget):
         except Exception as e:
             return None
 
-        return {
-            "destination": dest,
-            "file_size": right_input_value
-            }
+        return (place, right_input_value)
 
     def my_sep(self):
         sep = QFrame()
@@ -78,6 +77,11 @@ class DynamicWidget(QWidget):
 class AppSimple(QWidget):
     def __init__(self):
         super().__init__()
+
+        fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
+        fl = fl  | Qt.WindowType.WindowCloseButtonHint
+        self.setWindowFlags(fl)
+
         self.setAcceptDrops(True)
         self.initUI()
 
@@ -152,6 +156,11 @@ class AppSimple(QWidget):
         del item
 
     def start_btn_start_cmd(self):
+        self.win_ = ProcessWin()
+        self.win_.center_relative_parent(parent=self)
+        self.win_.show()
+        return
+
         if not self.statement_widgets:
             return
 
@@ -162,39 +171,26 @@ class AppSimple(QWidget):
 
             if i_data:
                 data.append(i_data)
+
             else:
                 t = "Заполните все данные в условиях.\nУкажите путь к папке, введите целое число"
                 self.show_warning(t)
                 return
 
-        self.start_btn.setText("Стоп")
-        self.start_btn.clicked.disconnect()
-        self.start_btn.clicked.connect(self.start_btn_stop_cmd)
+        self.task_ = ComprerssNoState(data=data)
 
-        try:
-            self.task = CompressThreadBased(data=data)
-            self.switch_widgets(True)
-            self.task.finished.connect(self.finished_task)
-            self.task.start()
-        except Exception as e:
-            self.show_warning(f"Обратитесь к разрабочику\nОшибка при запуске QThread\n{e}")
+        self.win_ = ProcessWin()
+
+        self.win_.stop_.connect(lambda: self.task_.stop_cmd)
+        self.task_.finished_.connect(self.finished_task)
+        self.task_.feedback.connect(lambda data: self.win_.set_labels_cmd**data)
+
+        self.task_.start()
+        self.win_.center_relative_parent(parent=self)
+        self.win_.show()
 
     def finished_task(self):
-        self.start_btn.setText("Старт")
-        self.switch_widgets(False)
-        self.start_btn.clicked.disconnect()
-        self.start_btn.clicked.connect(self.start_btn_start_cmd)
-
-    def start_btn_stop_cmd(self):
-        self.start_btn.setText("Старт")
-        self.switch_widgets(False)
-        self.start_btn.clicked.disconnect()
-        self.start_btn.clicked.connect(self.start_btn_start_cmd)
-
-        try:
-            self.task.force_cancel.emit()
-        except Exception as e:
-            pass
+        self.win_.deleteLater()
 
     def show_warning(self, text: str):
         msg = QMessageBox(self)
@@ -216,26 +212,17 @@ class AppSimple(QWidget):
         self.hide()
 
         Cfg.geo = self.geometry()
+
         self.app_ext = AppStatement()
         Shared.my_app = self.app_ext
         self.app_ext.show()
 
         try:
-            self.task.force_cancel.emit()
+            self.task_.force_cancel.emit()
         except Exception as e:
             pass
 
         self.deleteLater()
-
-    def switch_widgets(self, disabled: bool):
-        for i in (self.mode_btn, self.browseTitle, self.list_widget):
-            try:
-                i.setDisabled(disabled)
-            except Exception as e:
-                print(e)
-
-
-
 
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
         self.raise_()
