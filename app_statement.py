@@ -222,22 +222,6 @@ class AppStatement(QWidget):
 
 
 
-        t = [
-            "Сжатие по условиям: укажите главную папку",
-            "",
-            "Добавьте условие:",
-            "Все папки с именем *** внутри главной папки будет сжаты до ***",
-            "",
-            "Добавьте отдельные папки/файлы:",
-            "Все папки внутри главной папки, кроме *** буду сжаты до ***",
-            "а добавленная папка до ***"
-        ]
-        t = "\n".join(t)
-        self.browseTitle = QLabel(t)
-        self.v_layout.addWidget(self.browseTitle)
-
-
-
 
         self.browse_wid = QWidget()
         self.browse_wid.setFixedHeight(50)
@@ -254,6 +238,33 @@ class AppStatement(QWidget):
 
         self.browse_label_path = QLabel('Можно перетянуть сюда главную папку')
         browse_lay.addWidget(self.browse_label_path)
+
+
+
+
+
+
+
+        t = [
+            "Сжатие по условиям: укажите главную папку",
+            "",
+            "Добавьте условие:",
+            "Все папки с именем *** внутри главной папки будет сжаты до *** кб",
+            "",
+            "Добавьте отдельные папки/файлы:",
+            "Все папки внутри главной папки будут сжаты до *** кб",
+            "а добавленная папка с именем *** до *** кб"
+        ]
+        t = "\n".join(t)
+        self.description = QLabel(t)
+        self.v_layout.addWidget(self.description)
+
+
+
+
+
+
+
 
         self.btns_wid = QWidget()
         self.v_layout.addWidget(self.btns_wid)
@@ -397,22 +408,26 @@ class AppStatement(QWidget):
         for path_ in paths:
             path_ = path_.toLocalFile()
 
+            if self.browse_wid.underMouse() and os.path.isdir(path_):
+                self.browse_label_path.setWordWrap(True)
+                self.browse_label_path.setText(path_)
+                self.main_folder = path_
+                break
+
+
             if self.list_widget.underMouse() or self.btns_wid.underMouse():
-                print(1)
+
                 if not self.main_folder:
                     self.show_warning("Сначала укажите главную папку")
                     break
 
-                if self.main_folder in path_:
+                print(self.main_folder, path_)
+
+                if self.main_folder in path_ and self.main_folder != path_:
                     self.add_folder_cmd(path_)
+
                 else:
                     self.show_warning("Файл/папка должны быть в главной папке")
-            else:
-                if os.path.isdir(path_):
-                    self.browse_label_path.setWordWrap(True)
-                    self.browse_label_path.setText(path_)
-                    self.main_folder = path_
-                    break
 
         super().dropEvent(a0)
 
