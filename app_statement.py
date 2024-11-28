@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                              QVBoxLayout, QWidget)
 
 from cfg import Cfg
-from util import CompressThread
+from utils import CompressThread
 
 
 class Shared:

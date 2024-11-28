@@ -54,10 +54,14 @@ class ComprerssNoState(QThread):
                 return
 
             path, max_size_kb = single_data
-            self.walk_dir(
-                path=path,
-                max_size_kb=max_size_kb
-            )
+
+            if os.path.isdir(path):
+                self.walk_dir(
+                    path=path,
+                    max_size_kb=max_size_kb
+                )
+            else:
+                self.compress_img(img_src=path, max_size_kb=max_size_kb)
 
         self.finished_.emit()
 
@@ -69,6 +73,10 @@ class ComprerssNoState(QThread):
 
             if not self.can_run:
                 return
+            
+            if os.path.isfile(path):
+                self.total += 1
+                continue
 
             for root, dirs, files in os.walk(path):
                 for file in files:
@@ -78,6 +86,25 @@ class ComprerssNoState(QThread):
 
                     if file.endswith(IMG_EXTS):
                         self.total += 1
+
+    def compress_img(self, img_src: str, max_size_kb: int):
+        try:
+            Utils.resize_image(
+                img_src=img_src,
+                max_size=max_size_kb
+            )
+
+        except Exception as e:
+            ...
+
+        "total, current, place > app_win_process"
+        self.current += 1
+        data_ = {
+            "total": self.total,
+            "current": self.current,
+            "place": os.path.basename(img_src.strip().strip(os.sep))
+        }
+        self.feedback.emit(data_)
 
     def walk_dir(self, path: str, max_size_kb: int):
 
@@ -97,7 +124,7 @@ class ComprerssNoState(QThread):
                         )
 
                     except Exception as e:
-                        continue
+                        ...
 
                     "total, current, place > app_win_process"
                     self.current += 1

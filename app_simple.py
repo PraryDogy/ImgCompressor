@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QLabel, QLineEdit,
 
 from app_win_process import ProcessWin
 from cfg import Cfg
-from util import ComprerssNoState
+from utils import ComprerssNoState
 
 
 class Shared:
@@ -107,7 +107,7 @@ class AppSimple(QWidget):
 
         t = [
             "Сжатие без условий:",
-            "Перетяните одну или несколько папок и программа",
+            "Перетяните файлы или папки и программа",
             "сожмет все изображения внутри этих папок."
         ]
 
@@ -152,11 +152,6 @@ class AppSimple(QWidget):
         del item
 
     def start_btn_start_cmd(self):
-        # self.win_ = ProcessWin()
-        # self.win_.center_relative_parent(parent=self)
-        # self.win_.show()
-        # return
-
         if not self.statement_widgets:
             return
 
@@ -239,13 +234,5 @@ class AppSimple(QWidget):
 
             if os.path.isdir(path_):
                 self.add_btn_cmd(path_=path_)
-
-            #     if self.list_widget.underMouse():
-            #         if self.my_path:
-            #             self.add_folder_cmd(path)
-            #     elif self.add_main_folder_wid.underMouse():
-            #         self.browse_label_path.setWordWrap(True)
-            #         self.browse_label_path.setText(path)
-            #         self.my_path = path
-            #         self.disable_btns(False)
-            #         return super().dropEvent(a0)
+            else:
+                self.add_btn_cmd(path_=path_)
