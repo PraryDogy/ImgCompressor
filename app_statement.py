@@ -255,12 +255,12 @@ class AppStatement(QWidget):
         self.browse_label_path = QLabel('Можно перетянуть сюда главную папку')
         browse_lay.addWidget(self.browse_label_path)
 
-        btns_wid = QWidget()
-        self.v_layout.addWidget(btns_wid)
+        self.btns_wid = QWidget()
+        self.v_layout.addWidget(self.btns_wid)
 
         btns_lay = QHBoxLayout()
         btns_lay.setContentsMargins(0, 0, 0, 0)
-        btns_wid.setLayout(btns_lay)
+        self.btns_wid.setLayout(btns_lay)
 
         self.add_btn = QPushButton("Добавить условие")
         self.add_btn.clicked.connect(self.add_statement_cmd)
@@ -346,34 +346,12 @@ class AppStatement(QWidget):
                 self.show_warning(t)
                 return
 
-        self.start_btn.setText("Стоп")
-        self.start_btn.clicked.disconnect()
-        self.start_btn.clicked.connect(self.start_btn_stop_cmd)
-
         try:
             self.task = CompressThread(root_dir=self.my_path, data=data)
-            self.task.finished.connect(self.finished_task)
-            self.switch_widgets(True)
+            # self.task.finished.connect(self.finished_task)
             self.task.start()
         except Exception as e:
             self.show_warning(f"Обратитесь к разрабочику\nОшибка при запуске QThread\n{e}")
-
-    def finished_task(self):
-        self.start_btn.setText("Старт")
-        self.switch_widgets(False)
-        self.start_btn.clicked.disconnect()
-        self.start_btn.clicked.connect(self.start_btn_start_cmd)
-
-    def start_btn_stop_cmd(self):
-        self.start_btn.setText("Старт")
-        self.switch_widgets(False)
-        self.start_btn.clicked.disconnect()
-        self.start_btn.clicked.connect(self.start_btn_start_cmd)
-
-        try:
-            self.task.force_cancel.emit()
-        except Exception as e:
-            pass
 
     def show_warning(self, text: str):
         msg = QMessageBox(self)
@@ -422,19 +400,17 @@ class AppStatement(QWidget):
             if self.list_widget.underMouse():
                 if self.my_path:
                     self.add_folder_cmd(path)
-            elif self.browse_wid.underMouse():
-                self.browse_label_path.setWordWrap(True)
-                self.browse_label_path.setText(path)
-                self.my_path = path
-                self.disable_btns(False)
-                return super().dropEvent(a0)
-        
-    def switch_widgets(self, disabled: bool):
-        for i in (self.mode_btn, self.browseTitle, self.browse_btn, self.browse_label_path, self.add_btn, self.list_widget):
-            try:
-                i.setDisabled(disabled)
-            except Exception as e:
-                print(e)
+
+            for i in (self.browseTitle, self.browse_wid, self.btns_wid):
+                
+                if i.underMouse():
+                    self.browse_label_path.setWordWrap(True)
+                    self.browse_label_path.setText(path)
+                    self.my_path = path
+                    self.disable_btns(False)
+                    break
+
+        return super().dropEvent(a0)
 
     def add_folder_cmd(self, folder_path: str):
         list_item = QListWidgetItem()
