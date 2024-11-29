@@ -1,11 +1,14 @@
 from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout
 from wid_nostat import WidNoStat
 from wid_stat import WidStat
+from cfg import Cfg
 
 class App(QWidget):
     def __init__(self):
         super().__init__()
         self.setMinimumSize(560, 560)
+        self.setWindowTitle(Cfg.app_name)
+
 
         main_lay = QVBoxLayout()
         self.setLayout(main_lay)
