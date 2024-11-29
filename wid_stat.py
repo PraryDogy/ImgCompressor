@@ -389,8 +389,11 @@ class WidStat(QWidget):
         msg.exec_()
 
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
+
         self.raise_()
         self.show()
+        self.setFocus()
+
         if a0.mimeData().hasUrls():
             a0.acceptProposedAction()
         return super().dragEnterEvent(a0)
@@ -399,19 +402,30 @@ class WidStat(QWidget):
         return super().dragLeaveEvent(a0)
 
     def dropEvent(self, a0: QDropEvent | None) -> None:
+        screen_height = self.height()
+        drop_position = a0.pos().y()
         paths = a0.mimeData().urls()
 
-        for path_ in paths:
-            path_ = path_.toLocalFile()
+        if not paths:
+            return
 
-            if self.browse_wid.underMouse() and os.path.isdir(path_):
+        if drop_position < screen_height / 2:
+            # если это в верхней половине экрана
+            
+            path_ = paths[0].toLocalFile()
+            path_ = path_ if os.path.isdir(path_) else None
+
+            if path_:
                 self.main_folder_lbl.setWordWrap(True)
                 self.main_folder_lbl.setText(path_)
                 self.main_folder = path_
-                break
 
+        else:
+            # если в нижней части экрана
 
-            if self.list_widget.underMouse() or self.btns_wid.underMouse():
+            for path_ in paths:
+
+                path_ = path_.toLocalFile()
 
                 if not self.main_folder:
                     self.show_warning("Сначала укажите главную папку")
