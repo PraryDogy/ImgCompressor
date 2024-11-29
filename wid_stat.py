@@ -219,8 +219,8 @@ class WidStat(QWidget):
         browse_lay.addWidget(self.browse_btn)
 
 
-        self.browse_label_path = QLabel('Можно перетянуть сюда главную папку')
-        browse_lay.addWidget(self.browse_label_path)
+        self.main_folder_lbl = QLabel('Можно перетянуть сюда главную папку')
+        browse_lay.addWidget(self.main_folder_lbl)
 
         t = [
             "Описание условий",
@@ -285,11 +285,11 @@ class WidStat(QWidget):
         QTimer.singleShot(200, self.setFocus)
 
     def browse_main_folder(self):
-        directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
-        if directory:
-            self.browse_label_path.setWordWrap(True)
-            self.browse_label_path.setText(directory)
-            self.main_folder = directory
+        dest = QFileDialog.getExistingDirectory(self, "Выберите папку")
+        if dest:
+            self.main_folder_lbl.setWordWrap(True)
+            self.main_folder_lbl.setText(dest)
+            self.main_folder = dest
 
     def add_stat_wid(self, flag: str):
 
@@ -390,8 +390,8 @@ class WidStat(QWidget):
             path_ = path_.toLocalFile()
 
             if self.browse_wid.underMouse() and os.path.isdir(path_):
-                self.browse_label_path.setWordWrap(True)
-                self.browse_label_path.setText(path_)
+                self.main_folder_lbl.setWordWrap(True)
+                self.main_folder_lbl.setText(path_)
                 self.main_folder = path_
                 break
 
