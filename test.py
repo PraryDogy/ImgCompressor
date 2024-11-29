@@ -1,48 +1,54 @@
 import os
 from cfg import Cfg
 
+def compress_named_folders(root, dirs, named_folders):
+    compress = {}
+    for dir in dirs:
+        for data_dict in named_folders:
+            if dir == data_dict.get(Cfg.SRC):
+                dir_src = os.path.join(root, dir)
+                compress.update(compress_images_in_directory(dir_src, data_dict.get(Cfg.MAX_SIZE_KB)))
+    return compress
+
+def compress_specific_folders(root, dirs, file_folders):
+    compress = {}
+    for dir in dirs:
+        for data_dict in file_folders:
+            dir_src = os.path.join(root, dir)
+            if dir_src == data_dict.get(Cfg.SRC):
+                compress.update(compress_images_in_directory(dir_src, data_dict.get(Cfg.MAX_SIZE_KB)))
+    return compress
+
+def compress_specific_files(root, files, file_folders):
+    compress = {}
+    for file in files:
+        file_src = os.path.join(root, file)
+        for data_dict in file_folders:
+            if file_src == data_dict.get(Cfg.SRC) and os.path.isfile(file_src):
+                compress[file_src] = data_dict.get(Cfg.MAX_SIZE_KB)
+    return compress
+
+def compress_images_in_directory(directory, max_size_kb):
+    compress = {}
+    for root_, _, files_ in os.walk(directory):
+        for file_ in files_:
+            img_src = os.path.join(root_, file_)
+            if os.path.isfile(img_src) and img_src.endswith(Cfg.IMG_EXTS):
+                compress[img_src] = max_size_kb
+    return compress
+
 def process_files_and_folders(base_path, data: dict[list[dict]]):
-    named_folders: list[dict] = data.get(Cfg.NAMED_FOLDER, [])
-    file_folders: list[dict] = data.get(Cfg.FILE_FOLDER, [])
+    named_folders = data.get(Cfg.NAMED_FOLDER, [])
+    file_folders = data.get(Cfg.FILE_FOLDER, [])
 
-    compress: dict[str, int] = {}
-
+    compress = {}
     for root, dirs, files in os.walk(base_path):
-        for dir in dirs:
+        compress.update(compress_named_folders(root, dirs, named_folders))
+        compress.update(compress_specific_folders(root, dirs, file_folders))
+        compress.update(compress_specific_files(root, files, file_folders))
 
-            # мы проверяем все именованные папки
-            for data_dict in named_folders:
-                dir_src = os.path.join(root, dir)
-                if dir == data_dict.get(Cfg.SRC):
-                    # сжимаем все фотки внутри этой папки
-                    for root_, dirs_, files_ in os.walk(dir_src):
-                        for file_ in files_:
-                            img_src = os.path.join(root_, file_)
-                            if os.path.isfile(img_src) and img_src.endswith(Cfg.IMG_EXTS):
-                                compress[img_src] = data_dict.get(Cfg.MAX_SIZE_KB)
-
-            # мы проверяем конкретно указанные папки
-            for data_dict in file_folders:
-                dir_src = os.path.join(root, dir)
-                if dir_src == data_dict.get(Cfg.SRC):
-                    # сжимаем все фотки внутри этой папки
-                    for root_, dirs_, files_ in os.walk(dir_src):
-                        for file_ in files_:
-                            img_src = os.path.join(root_, file_)
-                            if os.path.isfile(img_src) and img_src.endswith(Cfg.IMG_EXTS):
-                                compress[img_src] = data_dict.get(Cfg.MAX_SIZE_KB)
-
-        for file in files:
-
-            for data_dict in file_folders:
-                file_src = os.path.join(root, file)
-                if file_src == data_dict.get(Cfg.SRC):
-                    if os.path.isfile(file_src) and file_src.endswith(Cfg.IMG_EXTS):
-                        compress[file_src] = data_dict.get(Cfg.MAX_SIZE_KB)
-
-    for k, v in compress.items():
-        print(k, v)
-
+    for img_src, max_size_kb in compress.items():
+        print(img_src, max_size_kb)
 
 # Пример использования
 base_path = '/Users/Loshkarev/Desktop/test'
