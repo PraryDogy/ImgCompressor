@@ -57,7 +57,7 @@ class FileProcessor:
                 self.specific_files_cmd(root, files, file_folders)
 
         if others:
-            self.remaining_files_cmd(self.base_path)
+            self.remaining_files_cmd(self.base_path, others)
 
         for img_src, max_size_kb in self.compress.items():
             print(img_src, max_size_kb)
@@ -67,16 +67,16 @@ base_path = '/Users/Loshkarev/Desktop/test'
 
 data = {
     Cfg.NAMED_FOLDERS: [
-        {'src': 'ХО', 'max_size_kb': 100},
-        {'src': 'ГО', 'max_size_kb': 50}
+        {'src': 'ХО', 'max_size_kb': 50},
+        {'src': 'ГО', 'max_size_kb': 100}
     ],
-    # Cfg.SPECIFIC_FOLDERS: [
-    #     {'src': '/Users/Loshkarev/Desktop/test/Test 2', 'max_size_kb': 666}, 
-    #     {'src': '/Users/Loshkarev/Desktop/test/Test/file 1.jpg', 'max_size_kb': 123}
-    # ],
-    # Cfg.OTHERS: [
-    #     {"src": None, "max_size_kb": 1000}
-    # ]
+    Cfg.SPECIFIC_FOLDERS: [
+        {'src': '/Users/Loshkarev/Desktop/test/Test 2', 'max_size_kb': 200}, 
+        {'src': '/Users/Loshkarev/Desktop/test/Test/file 1.jpg', 'max_size_kb': 300}
+    ],
+    Cfg.OTHERS: [
+        {"src": None, "max_size_kb": 1000}
+    ]
 }
 
 prc = FileProcessor(base_path, data)
