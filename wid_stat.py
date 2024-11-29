@@ -191,7 +191,7 @@ class FolderWid(QWidget):
         return sep
 
 
-class AppStatement(QWidget):
+class WidStat(QWidget):
     def __init__(self):
         super().__init__()
         self.setAcceptDrops(True)

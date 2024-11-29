@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QLabel, QLineEdit,
                              QListWidget, QListWidgetItem, QMessageBox,
                              QPushButton, QSpacerItem, QVBoxLayout, QWidget)
 
-from app_win_process import ProcessWin
+from win_process import ProcessWin
 from cfg import Cfg
 from utils import NoStatementTask
 
@@ -73,7 +73,7 @@ class DynamicWidget(QWidget):
         return sep
 
 
-class AppSimple(QWidget):
+class WidNoStat(QWidget):
     def __init__(self):
         super().__init__()
         self.setAcceptDrops(True)
@@ -141,7 +141,11 @@ class AppSimple(QWidget):
                 data.append(i_data)
 
             else:
-                t = "Заполните все данные в условиях.\nУкажите путь к папке, введите целое число"
+                t = [
+                    "Заполните все данные в условиях.",
+                    "Укажите путь к папке, введите целое число"
+                ]
+                t = "\n".join(t)
                 self.show_warning(t)
                 return
 
