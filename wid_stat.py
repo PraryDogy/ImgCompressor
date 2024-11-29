@@ -30,15 +30,9 @@ class StatWid(QWidget):
         self.setLayout(self.main_lay)
 
         if flag == Cfg.FILE_FOLDER and dest:
-            
+
             self.dest = dest
-
-            dest_t = os.path.basename(
-                dest.strip().strip(os.sep)
-            )
-
-            dest_t = f"Папка / файл: {dest_t}"
-            self.left_wid = QLabel(text=dest_t)
+            self.left_wid = QLabel(text=dest)
 
         elif flag == Cfg.NAMED_FOLDER:
             
