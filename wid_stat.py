@@ -23,7 +23,8 @@ class StatWid(QWidget):
     def __init__(self, flag: str, dest: str = None):
         super().__init__()
         self.main_lay = QHBoxLayout()
-        self.main_lay.setContentsMargins(0, 0, 0, 0)
+        self.main_lay.setContentsMargins(10, 10, 10, 10)
+        self.setLayout(self.main_lay)
 
         if flag == FLAG_FOLDER and dest:
             
@@ -33,12 +34,12 @@ class StatWid(QWidget):
                 dest.strip().strip(os.sep)
             )
 
-            dest_t = f"Папка: {dest_t}"
+            dest_t = f"Все папки с именем: {dest_t}"
             self.left_wid = QLabel(text=dest_t)
 
         elif flag == FLAG_STAT:
             
-            self.left_wid = QLineEdit(parent=self)
+            self.left_wid = QLineEdit()
             self.left_wid.setFixedHeight(30)
             self.left_wid.setPlaceholderText("Имя папки")
 
@@ -49,13 +50,14 @@ class StatWid(QWidget):
 
         self.main_lay.addWidget(self.left_wid)
 
-        self.right_wid = QLineEdit(parent=self)
+        self.right_wid = QLineEdit()
         self.right_wid.setFixedHeight(30)
         self.right_wid.setFixedWidth(200)
         self.right_wid.setPlaceholderText("Размер в килобайтах")
         self.main_lay.addWidget(self.right_wid)
 
-        self.remove_btn = QPushButton(parent=self, text="x")
+        self.remove_btn = QPushButton(text="x")
+        self.remove_btn.setFixedWidth(40)
         self.remove_btn.clicked.connect(self.removed.emit)
         self.main_lay.addWidget(self.remove_btn)
 
