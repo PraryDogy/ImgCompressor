@@ -226,21 +226,22 @@ class StatementTask(QThread):
     def __init__(self, main_folder: str, data: dict[list[dict]]):
         super().__init__()
 
-        self.force_cancel.connect(self.stop_cmd)
-
         self.main_folder = main_folder
         self.data = data
         self.can_run = True
 
     def run(self):
-        self.compressor = FileProcessor()
+        self.compressor = FileProcessor(base_path=self.main_folder, data=self.data)
         self.compress_list: dict[str, int] = self.compressor.get_compress_list()
 
         self.total_ = len(self.compress_list)
+        
+        self.compress_images()
+        self.finished_.emit()
 
     def compress_images(self):
 
-        for x, img_src, max_size_kb in enumerate(self.compress_list.items(), start=1):
+        for x, (img_src, max_size_kb) in enumerate(self.compress_list.items(), start=1):
 
             try:
 
