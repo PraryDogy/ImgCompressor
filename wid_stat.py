@@ -64,6 +64,7 @@ class StatWid(QWidget):
             self.left_wid.setPlaceholderText("Папка с именем ***")
 
         elif flag == Cfg.OTHERS:
+            print(23)
 
             self.left_wid = QLabel(text="Остальное")
 
@@ -177,10 +178,10 @@ class WidStat(QWidget):
         self.add_btn_two.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn_two)
         
-        self.add_btn_two = QPushButton("Остальное")
-        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.OTHERS))
-        self.add_btn_two.setFixedWidth(150)
-        btns_lay.addWidget(self.add_btn_two)
+        self.add_btn_three = QPushButton("Остальное")
+        self.add_btn_three.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.OTHERS))
+        self.add_btn_three.setFixedWidth(150)
+        btns_lay.addWidget(self.add_btn_three)
 
         btns_lay.addStretch()
 
@@ -214,9 +215,9 @@ class WidStat(QWidget):
 
     def add_stat_wid(self, flag: str, dest: str = None):
 
-        if not self.main_folder:
-            self.show_warning("Укажите главную папку")
-            return
+        # if not self.main_folder:
+        #     self.show_warning("Укажите главную папку")
+        #     return
 
         if flag == Cfg.NAMED_FOLDERS:
             wid = StatWid(flag=Cfg.NAMED_FOLDERS)
@@ -232,7 +233,7 @@ class WidStat(QWidget):
                 return
             
         elif flag == Cfg.OTHERS:
-            wid = StatWid(flag=Cfg.NAMED_FOLDERS)
+            wid = StatWid(flag=Cfg.OTHERS)
 
         list_item = QListWidgetItem()
         cmd_ = lambda: self.stat_wid_removed_cmd(list_item, wid)
@@ -258,6 +259,9 @@ class WidStat(QWidget):
 
             if data is None:
                 return None
+
+            if data.get(Cfg.FLAG) == Cfg.OTHERS:
+                print("others pressed")
 
             else:
                 total_data[data.get(Cfg.FLAG)].append(
@@ -288,6 +292,7 @@ class WidStat(QWidget):
                 ]
             self.show_warning("\n".join(t))
 
+        return
         self.task = StatementTask(
             main_folder = self.main_folder,
             data = data
