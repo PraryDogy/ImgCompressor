@@ -314,7 +314,10 @@ class WidStat(QWidget):
         self.task_.start()
 
     def finished_task(self):
-        self.win_.deleteLater()
+        try:
+            self.win_.deleteLater()
+        except RuntimeError:
+            pass
 
     def show_warning(self, text: str):
 

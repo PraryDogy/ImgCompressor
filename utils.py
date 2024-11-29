@@ -243,6 +243,9 @@ class StatementTask(QThread):
 
         for x, (img_src, max_size_kb) in enumerate(self.compress_list.items(), start=1):
 
+            if not self.can_run:
+                return
+
             try:
 
                 Utils.resize_image(img_src, max_size_kb)
@@ -255,7 +258,7 @@ class StatementTask(QThread):
                 self.feedback.emit(data_)
 
                 from time import sleep
-                sleep(1)
+                sleep(3)
 
             except Exception as e:
                 print("utils compress error", e)
