@@ -19,8 +19,8 @@ class Shared:
 class StatWid(QWidget):
     removed = pyqtSignal()
 
-    def __init__(self, title: str, parent: QWidget = None):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
 
         v_layout = QVBoxLayout()
         v_layout.setContentsMargins(0, 0, 0, 0)
@@ -171,6 +171,7 @@ class FolderWid(QWidget):
     def get_data(self):
         try:
             right_input_value = int(self.right_input.text().strip())
+            # вычитаем 5кб от заданного размера на всякий случай
             right_input_value = right_input_value - 5
         except Exception as e:
             return None
@@ -213,7 +214,7 @@ class WidStat(QWidget):
         self.browse_wid.setLayout(browse_lay)
 
         self.browse_btn = QPushButton("Главная папка")
-        self.browse_btn.clicked.connect(self.browse_folder)
+        self.browse_btn.clicked.connect(self.browse_main_folder)
         self.browse_btn.setFixedWidth(200)
         browse_lay.addWidget(self.browse_btn)
 
@@ -244,17 +245,17 @@ class WidStat(QWidget):
         self.btns_wid.setLayout(btns_lay)
 
         self.add_btn = QPushButton("Условие")
-        self.add_btn.clicked.connect(self.add_statement_cmd)
+        self.add_btn.clicked.connect(lambda: self.add_stat_wid(flag="stat"))
         self.add_btn.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn)
 
         self.add_btn_two = QPushButton("Папка/файл")
-        self.add_btn_two.clicked.connect(self.btn_add_folder_cmd)
+        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag="folder"))
         self.add_btn_two.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn_two)
         
         self.add_btn_two = QPushButton("Остальное")
-        self.add_btn_two.clicked.connect(self.btn_add_folder_cmd)
+        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag="other"))
         self.add_btn_two.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn_two)
 
@@ -272,39 +273,55 @@ class WidStat(QWidget):
 
         self.start_btn = QPushButton("Старт")
         self.start_btn.setFixedWidth(200)
-        self.start_btn.clicked.connect(self.start_btn_start_cmd)
+        self.start_btn.clicked.connect(self.start_btn_cmd)
         self.main_lay.addWidget(
             self.start_btn,
             alignment=Qt.AlignmentFlag.AlignCenter
         )
 
-    def browse_folder(self):
+    def browse_main_folder(self):
         directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
         if directory:
             self.browse_label_path.setWordWrap(True)
             self.browse_label_path.setText(directory)
             self.main_folder = directory
 
-    def add_statement_cmd(self):
+    def add_stat_wid(self, flag: str):
+
+        if not self.main_folder:
+            self.show_warning("Укажите главную папку")
+            return
+
+        if flag == "stat":
+            wid = StatWid()
+
+        elif flag == "folder":
+            dest = QFileDialog.getExistingDirectory(self)
+            if dest:
+                wid = FolderWid(path=dest, parent=self)
+
+        elif flag == "other":
+            ...
+
         list_item = QListWidgetItem()
-        wid = StatWid(title="hello", parent=self)
-        wid.removed.connect(lambda: self.removed_cmd(list_item, wid))
+        cmd_ = lambda: self.stat_wid_removed_cmd(list_item, wid)
+        wid.removed.connect(cmd_)
         list_item.setSizeHint(wid.sizeHint())
         self.list_widget.addItem(list_item)
         self.list_widget.setItemWidget(list_item, wid)
         self.stat_wids.append(wid)
 
-    def removed_cmd(self, list_item: QListWidgetItem, wid: StatWid):
+    def stat_wid_removed_cmd(self, list_item: QListWidgetItem, wid: StatWid):
         self.stat_wids.remove(wid)
-
         item_index = self.list_widget.row(list_item)
         item = self.list_widget.takeItem(item_index)
         self.list_widget.removeItemWidget(item)
         del item
 
+    def start_btn_cmd(self):
 
-    def start_btn_start_cmd(self):
         if not self.stat_wids:
+            self.show_warning("Добавьте условия")
             return
 
         if not self.main_folder:
@@ -319,7 +336,11 @@ class WidStat(QWidget):
             if i_data:
                 data.append(i_data)
             else:
-                t = "Заполните все данные в условиях.\nСлева имя папки, справа целое число"
+                t = [
+                    "Заполните все данные в условиях",
+                    "Слева имя папки, справа целое число"
+                ]
+                t = "\n".join(t)
                 self.show_warning(t)
                 return
             
@@ -334,15 +355,15 @@ class WidStat(QWidget):
             self.show_warning(f"Обратитесь к разрабочику\nОшибка при запуске QThread\n{e}")
 
     def show_warning(self, text: str):
+
         msg = QMessageBox(self)
         msg.setIcon(QMessageBox.Warning)
         msg.setText(text)
-        msg.setWindowTitle("Внимание")
         msg.setStandardButtons(QMessageBox.Ok)
         msg.adjustSize()
 
         geo = msg.geometry()
-        geo.moveCenter(self.geometry().center())
+        geo.moveCenter(self.window().geometry().center())
         msg.setGeometry(geo)
 
         msg.exec_()
@@ -383,18 +404,3 @@ class WidStat(QWidget):
                     self.show_warning("Файл/папка должны быть в главной папке")
 
         super().dropEvent(a0)
-
-
-    def add_folder_cmd(self, folder_path: str):
-        list_item = QListWidgetItem()
-        wid = FolderWid(path=folder_path, parent=self)
-        wid.removed.connect(lambda: self.removed_cmd(list_item, wid))
-        list_item.setSizeHint(wid.sizeHint())
-        self.list_widget.addItem(list_item)
-        self.list_widget.setItemWidget(list_item, wid)
-        self.stat_wids.append(wid)
-
-    def btn_add_folder_cmd(self):
-        directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
-        if directory:
-            self.add_folder_cmd(folder_path=directory)
