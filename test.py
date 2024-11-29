@@ -36,11 +36,14 @@ class FileProcessor:
                     self.compress[img_src] = max_size_kb
 
     def remaining_files_cmd(self, base_path, others: dict[list]):
+
+        others: dict = others[0]
+
         for root, dirs, files in os.walk(base_path):
             for name in dirs + files:
                 item_path = os.path.join(root, name)
                 if item_path not in self.compress and item_path.endswith(Cfg.IMG_EXTS):
-                    self.compress[item_path] = 99999
+                    self.compress[item_path] = others.get(Cfg.MAX_SIZE_KB)
 
     def get_compress_list(self):
         named_folders = self.data.get(Cfg.NAMED_FOLDERS)
@@ -75,7 +78,7 @@ data = {
         {'src': '/Users/Loshkarev/Desktop/test/Test/file 1.jpg', 'max_size_kb': 300}
     ],
     Cfg.OTHERS: [
-        {"src": None, "max_size_kb": 1000}
+        {"src": None, "max_size_kb": 123123123}
     ]
 }
 
