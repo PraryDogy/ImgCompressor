@@ -257,9 +257,6 @@ class StatementTask(QThread):
                 }
                 self.feedback.emit(data_)
 
-                from time import sleep
-                sleep(3)
-
             except Exception as e:
                 print("utils compress error", e)
                 continue
