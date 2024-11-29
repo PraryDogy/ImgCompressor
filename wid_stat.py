@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
 
 from cfg import Cfg
 from utils import StatementTask
+from win_process import ProcessWin
 
 
 class CustomLineEdit(QLineEdit):
@@ -295,15 +296,25 @@ class WidStat(QWidget):
                 ]
             self.show_warning("\n".join(t))
 
-        print(data)
 
-        return
-        self.task = StatementTask(
+
+        self.task_ = StatementTask(
             main_folder = self.main_folder,
             data = data
         )
-        # self.task.finished.connect(self.finished_task)
-        self.task.start()
+
+        self.win_ = ProcessWin()
+
+        self.win_.stop_.connect(self.task_.stop_cmd)
+        self.task_.finished_.connect(self.finished_task)
+        self.task_.feedback.connect(lambda data: self.win_.set_labels_cmd(**data))
+        self.task_.start()
+        self.win_.center_relative_parent(parent=self.window())
+        self.win_.show()
+        self.task_.start()
+
+    def finished_task(self):
+        self.win_.deleteLater()
 
     def show_warning(self, text: str):
 

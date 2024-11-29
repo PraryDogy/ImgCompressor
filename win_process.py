@@ -9,6 +9,10 @@ class ProcessWin(QWidget):
     stop_ = pyqtSignal()
     feedback = pyqtSignal(dict)
 
+    current = "current"
+    total = "total"
+    place = "place"
+
     def __init__(self):
         """current, total, place"""
 

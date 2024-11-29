@@ -221,7 +221,7 @@ class FileProcessor:
 
 class StatementTask(QThread):
     finished_ = pyqtSignal()
-    force_cancel = pyqtSignal()
+    feedback = pyqtSignal(dict)
 
     def __init__(self, main_folder: str, data: dict[list[dict]]):
         super().__init__()
@@ -235,12 +235,27 @@ class StatementTask(QThread):
     def run(self):
         self.compressor = FileProcessor()
         self.compress_list: dict[str, int] = self.compressor.get_compress_list()
+
         self.total_ = len(self.compress_list)
 
     def compress_images(self):
-        for img_src, max_size_kb in self.compress_list.items():
+
+        for x, img_src, max_size_kb in enumerate(self.compress_list.items(), start=1):
+
             try:
+
                 Utils.resize_image(img_src, max_size_kb)
+
+                data_ = {
+                    "total": self.total_,
+                    "current": x,
+                    "place": img_src
+                }
+                self.feedback.emit(data_)
+
+                from time import sleep
+                sleep(1)
+
             except Exception as e:
                 print("utils compress error", e)
                 continue
