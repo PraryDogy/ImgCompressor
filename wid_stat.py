@@ -21,6 +21,8 @@ class StatWid(QWidget):
 
     def __init__(self, flag: str, dest: str = None):
         super().__init__()
+        self.flag = flag
+
         self.main_lay = QHBoxLayout()
         self.main_lay.setContentsMargins(10, 10, 10, 10)
         self.setLayout(self.main_lay)
@@ -36,13 +38,13 @@ class StatWid(QWidget):
             dest_t = f"Папка / файл: {dest_t}"
             self.left_wid = QLabel(text=dest_t)
 
-        elif flag == Cfg.FLAG_STAT:
+        elif flag == Cfg.FLAG_NAMED_FOLDER:
             
             self.left_wid = CustomLineEdit()
             self.left_wid.setFixedHeight(30)
             self.left_wid.setPlaceholderText("Папка с именем ***")
 
-        elif flag == Cfg.FLAG_OTHER:
+        elif flag == Cfg.FLAG_MAIN_FOLDER:
 
             self.left_wid = QLabel(text="Остальное")
 
@@ -71,12 +73,15 @@ class StatWid(QWidget):
         if not isinstance(max_size_kb, int):
             return None
 
-        src = self.left_wid.text().strip()
 
-        if not src:
-            return None
+        if self.flag in (Cfg.FLAG_NAMED_FOLDER, Cfg.FLAG_MAIN_FOLDER):
+            src = ""
+
+        else:
+            src = self.left_wid.text().strip()
 
         return {
+            Cfg.WID_FLAG_KEY: self.flag,
             Cfg.WID_SRC_KEY: src,
             # вычитаем из пользовательского размера еще 5кб для безопасности
             Cfg.WID_SIZE_KEY: max_size_kb - 5
@@ -138,7 +143,7 @@ class WidStat(QWidget):
         self.btns_wid.setLayout(btns_lay)
 
         self.add_btn = QPushButton("Условие")
-        self.add_btn.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FLAG_STAT))
+        self.add_btn.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FLAG_NAMED_FOLDER))
         self.add_btn.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn)
 
@@ -148,7 +153,7 @@ class WidStat(QWidget):
         btns_lay.addWidget(self.add_btn_two)
         
         self.add_btn_two = QPushButton("Остальное")
-        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FLAG_OTHER))
+        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FLAG_MAIN_FOLDER))
         self.add_btn_two.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn_two)
 
@@ -212,8 +217,8 @@ class WidStat(QWidget):
             self.show_warning("Укажите главную папку")
             return
 
-        if flag == Cfg.FLAG_STAT:
-            wid = StatWid(flag=Cfg.FLAG_STAT)
+        if flag == Cfg.FLAG_NAMED_FOLDER:
+            wid = StatWid(flag=Cfg.FLAG_NAMED_FOLDER)
 
         elif flag == Cfg.FLAG_FOLDER:
 
@@ -225,8 +230,8 @@ class WidStat(QWidget):
             else:
                 return
             
-        elif flag == Cfg.FLAG_OTHER:
-            wid = StatWid(flag=Cfg.FLAG_STAT)
+        elif flag == Cfg.FLAG_MAIN_FOLDER:
+            wid = StatWid(flag=Cfg.FLAG_NAMED_FOLDER)
 
         list_item = QListWidgetItem()
         cmd_ = lambda: self.stat_wid_removed_cmd(list_item, wid)
@@ -271,7 +276,10 @@ class WidStat(QWidget):
                 data.append(i_data)
 
         try:
-            self.task = StatementTask(root_dir=self.main_folder, data=data)
+            self.task = StatementTask(
+                root_dir = self.main_folder,
+                data = data
+            )
             # self.task.finished.connect(self.finished_task)
             self.task.start()
         except Exception as e:

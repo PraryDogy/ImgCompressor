@@ -1,9 +1,9 @@
 import os
 
 from PIL import Image
-from PyQt5.QtCore import QThread, pyqtSignal, Qt
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
 
+from cfg import Cfg
 
 IMG_EXTS = ('.jpg', '.jpeg', '.png')
 
@@ -148,10 +148,6 @@ class StatementTask(QThread):
     force_cancel = pyqtSignal()
 
     def __init__(self, root_dir: str, data: dict):
-        """
-        [ {"folder_name": str, "file_size": int}, ... ]
-        """
-
         super().__init__()
         self.force_cancel.connect(self.stop_cmd)
         self.root_dir = root_dir
