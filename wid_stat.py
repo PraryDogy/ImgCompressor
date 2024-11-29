@@ -27,7 +27,7 @@ class StatWid(QWidget):
         self.main_lay.setContentsMargins(10, 10, 10, 10)
         self.setLayout(self.main_lay)
 
-        if flag == Cfg.FLAG_FOLDER and dest:
+        if flag == Cfg.FLAG_FILE_FOLDER and dest:
             
             self.dest = dest
 
@@ -81,10 +81,10 @@ class StatWid(QWidget):
             src = self.left_wid.text().strip()
 
         return {
-            Cfg.WID_FLAG_KEY: self.flag,
-            Cfg.WID_SRC_KEY: src,
+            Cfg.KEY_FLAG: self.flag,
+            Cfg.KEY_SRC: src,
             # вычитаем из пользовательского размера еще 5кб для безопасности
-            Cfg.WID_SIZE_KEY: max_size_kb - 5
+            Cfg.KEY_MAX_SIZE: max_size_kb - 5
         }
 
 
@@ -148,7 +148,7 @@ class WidStat(QWidget):
         btns_lay.addWidget(self.add_btn)
 
         self.add_btn_two = QPushButton("Папка / файл")
-        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FLAG_FOLDER))
+        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FLAG_FILE_FOLDER))
         self.add_btn_two.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn_two)
         
@@ -220,13 +220,13 @@ class WidStat(QWidget):
         if flag == Cfg.FLAG_NAMED_FOLDER:
             wid = StatWid(flag=Cfg.FLAG_NAMED_FOLDER)
 
-        elif flag == Cfg.FLAG_FOLDER:
+        elif flag == Cfg.FLAG_FILE_FOLDER:
 
             if dest is None:
                 dest = QFileDialog.getExistingDirectory(self)
 
             if dest:
-                wid = StatWid(flag=Cfg.FLAG_FOLDER, dest=dest)
+                wid = StatWid(flag=Cfg.FLAG_FILE_FOLDER, dest=dest)
             else:
                 return
             
@@ -248,6 +248,16 @@ class WidStat(QWidget):
         self.list_widget.removeItemWidget(item)
         del item
 
+    def get_total_data(self) -> list[dict]:
+        data = []
+        for i in self.stat_wids:
+            i_data = i.get_data()
+            if data is None:
+                return None
+            else:
+                data.append(i_data)
+        return data
+
     def start_btn_cmd(self):
 
         if not self.stat_wids:
@@ -258,32 +268,21 @@ class WidStat(QWidget):
             self.show_warning("Укажите папку")
             return
 
-        data = []
+        data = self.get_total_data()
 
-        for i in self.stat_wids:
-            i_data = i.get_data()
-
-            if data is None:
-                t = [
+        if not data:
+            t = [
                     "Заполните все данные в условиях",
                     "Слева имя папки, справа целое число"
                 ]
-                t = "\n".join(t)
-                self.show_warning(t)
-                return
+            self.show_warning("\n".join(t))
 
-            else:
-                data.append(i_data)
-
-        try:
-            self.task = StatementTask(
-                root_dir = self.main_folder,
-                data = data
-            )
-            # self.task.finished.connect(self.finished_task)
-            self.task.start()
-        except Exception as e:
-            self.show_warning(f"Обратитесь к разрабочику\nОшибка при запуске QThread\n{e}")
+        self.task = StatementTask(
+            main_folder = self.main_folder,
+            data = data
+        )
+        # self.task.finished.connect(self.finished_task)
+        self.task.start()
 
     def show_warning(self, text: str):
 

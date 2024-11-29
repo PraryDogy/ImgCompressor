@@ -147,44 +147,40 @@ class StatementTask(QThread):
     finished_ = pyqtSignal()
     force_cancel = pyqtSignal()
 
-    def __init__(self, root_dir: str, data: dict):
+    def __init__(self, main_folder: str, data: list[dict]):
         super().__init__()
+
         self.force_cancel.connect(self.stop_cmd)
-        self.root_dir = root_dir
+        self.root_dir = main_folder
         self.data = data
 
         self.can_run = True
 
     def run(self):
-        Shared.flag = True
         self.process_images(root_dir=self.root_dir, data=self.data)
         self.finished.emit()
 
     def stop_cmd(self):
-        Shared.flag = False
+        self.can_run = False
 
     def process_images(self, root_dir: str, data: list[dict]):
-        """
-        [ {"folder_name": str, "file_size": int}, ... ]
-        """
-
         named_folders: list[dict] = []
-        single_folders: list[dict] = []
-        files_: list[dict] = []
+        file_folders: list[dict] = []
+        
 
         for i in data:
 
-            if os.path.isdir(i.get("folder_name")):
-                single_folders.append(i)
-
-            elif os.path.isfile(i.get("folder_name")):
-                files_.append(i)
-
-            else:
+            if i.get(Cfg.KEY_FLAG) == Cfg.FLAG_NAMED_FOLDER:
                 named_folders.append(i)
 
+            elif i.get(Cfg.KEY_FLAG) == Cfg.FLAG_MAIN_FOLDER:
+                ...
+
+            elif i.get(Cfg.KEY_FLAG) == Cfg.FLAG_FILE_FOLDER:
+                file_folders.append(i)
+
         # делаем ресайзы в конкретных папках
-        for dict_ in single_folders:
+        for dict_ in file_folders:
 
             if not self.can_run:
                 return
