@@ -2,18 +2,12 @@ import os
 
 from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
-from PyQt5.QtWidgets import (QApplication, QFrame, QLabel, QLineEdit,
-                             QListWidget, QListWidgetItem, QMessageBox,
-                             QPushButton, QSpacerItem, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QFrame, QLabel, QLineEdit, QListWidget,
+                             QListWidgetItem, QMessageBox, QPushButton,
+                             QSpacerItem, QVBoxLayout, QWidget)
 
-from win_process import ProcessWin
-from cfg import Cfg
 from utils import NoStatementTask
-
-
-class Shared:
-    my_app = None
-
+from win_process import ProcessWin
 
 
 class DynamicWidget(QWidget):

@@ -11,6 +11,21 @@ from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
 from utils import StatementTask
 
 
+class StatWidBase(QWidget):
+    removed = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+        ...
+        # гор виджет
+        # верт верт удалить
+
+        self.main_lay = QHBoxLayout()
+
+
+
+
+
 class StatWid(QWidget):
     removed = pyqtSignal()
 
@@ -286,7 +301,7 @@ class WidStat(QWidget):
             self.main_folder_lbl.setText(dest)
             self.main_folder = dest
 
-    def add_stat_wid(self, flag: str):
+    def add_stat_wid(self, flag: str, dest: str = None):
 
         if not self.main_folder:
             self.show_warning("Укажите главную папку")
@@ -296,10 +311,15 @@ class WidStat(QWidget):
             wid = StatWid()
 
         elif flag == "folder":
-            dest = QFileDialog.getExistingDirectory(self)
+
+            if dest is None:
+                dest = QFileDialog.getExistingDirectory(self)
+
             if dest:
                 wid = FolderWid(path=dest, parent=self)
-
+            else:
+                return
+            
         elif flag == "other":
             ...
 
@@ -398,7 +418,7 @@ class WidStat(QWidget):
                     break
 
                 if self.main_folder in path_ and self.main_folder != path_:
-                    self.add_folder_cmd(path_)
+                    self.add_stat_wid(flag="folder", dest=path_)
 
                 else:
                     self.show_warning("Файл/папка должны быть в главной папке")
