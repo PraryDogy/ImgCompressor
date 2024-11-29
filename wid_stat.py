@@ -1,20 +1,13 @@
 import os
 
 from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QDragEnterEvent, QDragLeaveEvent, QDropEvent,
-                         QResizeEvent)
-from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
-                             QLineEdit, QListWidget, QListWidgetItem,
-                             QMessageBox, QPushButton, QSpacerItem,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
+from PyQt5.QtWidgets import (QFileDialog, QHBoxLayout, QLabel, QLineEdit,
+                             QListWidget, QListWidgetItem, QMessageBox,
+                             QPushButton, QVBoxLayout, QWidget)
 
+from cfg import Cfg
 from utils import StatementTask
-
-
-FLAG_STAT = "stat"
-FLAG_FOLDER = "folder"
-FLAG_OTHER = "other"
-
 
 
 class CustomLineEdit(QLineEdit):
@@ -32,7 +25,7 @@ class StatWid(QWidget):
         self.main_lay.setContentsMargins(10, 10, 10, 10)
         self.setLayout(self.main_lay)
 
-        if flag == FLAG_FOLDER and dest:
+        if flag == Cfg.FLAG_FOLDER and dest:
             
             self.dest = dest
 
@@ -40,16 +33,16 @@ class StatWid(QWidget):
                 dest.strip().strip(os.sep)
             )
 
-            dest_t = f"Файл / папка: {dest_t}"
+            dest_t = f"Папка / файл: {dest_t}"
             self.left_wid = QLabel(text=dest_t)
 
-        elif flag == FLAG_STAT:
+        elif flag == Cfg.FLAG_STAT:
             
             self.left_wid = CustomLineEdit()
             self.left_wid.setFixedHeight(30)
             self.left_wid.setPlaceholderText("Папка с именем ***")
 
-        elif flag == FLAG_OTHER:
+        elif flag == Cfg.FLAG_OTHER:
 
             self.left_wid = QLabel(text="Остальное")
 
@@ -68,6 +61,10 @@ class StatWid(QWidget):
         self.main_lay.addWidget(self.remove_btn)
 
     def get_data(self):
+        """
+        returns
+        `Cfg.WID_SRC_KEY`, `Cfg.WID_SIZE_KEY`
+        """
 
         max_size_kb = self.right_wid.text().strip()
 
@@ -80,8 +77,9 @@ class StatWid(QWidget):
             return None
 
         return {
-            "src": src,
-            "max_size_kb": max_size_kb - 5
+            Cfg.WID_SRC_KEY: src,
+            # вычитаем из пользовательского размера еще 5кб для безопасности
+            Cfg.WID_SIZE_KEY: max_size_kb - 5
         }
 
 
@@ -119,10 +117,10 @@ class WidStat(QWidget):
             "Описание условий",
             "",
             "Условие:",
-            "Папка с именем *** внутри главной папки будет сжата до *** кб",
+            "Все папки с именем *** внутри главной папки будут сжаты до *** кб",
             "",
-            "Файл/папка:",
-            "Указанный файл/папка внутри главной папки будут сжаты до *** кб",
+            "Папка / файл:",
+            "Указанные папка / файл внутри главной папки будут сжаты до *** кб",
             "",
             "Остальное:",
             "Все остальные файлы внутри главной папки будут сжаты до *** кб",
@@ -140,17 +138,17 @@ class WidStat(QWidget):
         self.btns_wid.setLayout(btns_lay)
 
         self.add_btn = QPushButton("Условие")
-        self.add_btn.clicked.connect(lambda: self.add_stat_wid(flag=FLAG_STAT))
+        self.add_btn.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FLAG_STAT))
         self.add_btn.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn)
 
-        self.add_btn_two = QPushButton("Папка/файл")
-        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=FLAG_FOLDER))
+        self.add_btn_two = QPushButton("Папка / файл")
+        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FLAG_FOLDER))
         self.add_btn_two.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn_two)
         
         self.add_btn_two = QPushButton("Остальное")
-        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=FLAG_OTHER))
+        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FLAG_OTHER))
         self.add_btn_two.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn_two)
 
@@ -214,21 +212,21 @@ class WidStat(QWidget):
             self.show_warning("Укажите главную папку")
             return
 
-        if flag == FLAG_STAT:
-            wid = StatWid(flag=FLAG_STAT)
+        if flag == Cfg.FLAG_STAT:
+            wid = StatWid(flag=Cfg.FLAG_STAT)
 
-        elif flag == FLAG_FOLDER:
+        elif flag == Cfg.FLAG_FOLDER:
 
             if dest is None:
                 dest = QFileDialog.getExistingDirectory(self)
 
             if dest:
-                wid = StatWid(flag=FLAG_FOLDER, dest=dest)
+                wid = StatWid(flag=Cfg.FLAG_FOLDER, dest=dest)
             else:
                 return
             
-        elif flag == FLAG_OTHER:
-            wid = StatWid(flag=FLAG_STAT)
+        elif flag == Cfg.FLAG_OTHER:
+            wid = StatWid(flag=Cfg.FLAG_STAT)
 
         list_item = QListWidgetItem()
         cmd_ = lambda: self.stat_wid_removed_cmd(list_item, wid)
@@ -260,9 +258,7 @@ class WidStat(QWidget):
         for i in self.stat_wids:
             i_data = i.get_data()
 
-            if i_data:
-                data.append(i_data)
-            else:
+            if data is None:
                 t = [
                     "Заполните все данные в условиях",
                     "Слева имя папки, справа целое число"
@@ -270,9 +266,9 @@ class WidStat(QWidget):
                 t = "\n".join(t)
                 self.show_warning(t)
                 return
-            
-        print(data)
-        return
+
+            else:
+                data.append(i_data)
 
         try:
             self.task = StatementTask(root_dir=self.main_folder, data=data)
@@ -342,6 +338,6 @@ class WidStat(QWidget):
                     self.add_stat_wid(flag="folder", dest=path_)
 
                 else:
-                    self.show_warning("Файл/папка должны быть в главной папке")
+                    self.show_warning("Файл / папка должны быть в главной папке")
 
         super().dropEvent(a0)
