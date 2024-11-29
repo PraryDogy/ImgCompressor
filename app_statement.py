@@ -16,7 +16,7 @@ class Shared:
     my_app = None
 
 
-class StatementWidget(QWidget):
+class StatWid(QWidget):
     removed = pyqtSignal()
 
     def __init__(self, title: str, parent: QWidget = None):
@@ -104,7 +104,7 @@ class StatementWidget(QWidget):
         return sep
 
 
-class FolderWidget(QWidget):
+class FolderWid(QWidget):
     removed = pyqtSignal()
 
     def __init__(self, path: str, parent: QWidget = None):
@@ -195,7 +195,9 @@ class AppStatement(QWidget):
     def __init__(self):
         super().__init__()
         self.setAcceptDrops(True)
+
         self.main_folder = None
+        self.stat_wids: list[StatWid | FolderWid] = []
 
         self.main_lay = QVBoxLayout()
         self.main_lay.setContentsMargins(0, 10, 0, 0)
@@ -223,12 +225,11 @@ class AppStatement(QWidget):
         t = [
             "Сжатие по условиям: укажите главную папку",
             "",
-            "Добавьте условие:",
-            "Все папки с именем *** внутри главной папки будет сжаты до *** кб",
+            "Условие:",
+            "Папка с именем *** внутри главной папки будет сжата до *** кб",
             "",
-            "Добавьте отдельные папки/файлы:",
-            "Все папки внутри главной папки будут сжаты до *** кб",
-            "а добавленная папка с именем *** до *** кб"
+            "Файл/папка:",
+            "Указанный файл/папка внутри главной папки будут сжаты до *** кб",
         ]
         t = "\n".join(t)
         self.description = QLabel(t)
@@ -242,16 +243,21 @@ class AppStatement(QWidget):
         btns_lay.setContentsMargins(0, 0, 0, 0)
         self.btns_wid.setLayout(btns_lay)
 
-        self.add_btn = QPushButton("Добавить условие")
+        self.add_btn = QPushButton("Условие")
         self.add_btn.clicked.connect(self.add_statement_cmd)
-        self.add_btn.setFixedWidth(200)
+        self.add_btn.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn)
 
-        self.add_btn_two = QPushButton("Добавить папку")
+        self.add_btn_two = QPushButton("Папка/файл")
         self.add_btn_two.clicked.connect(self.btn_add_folder_cmd)
-        self.add_btn_two.setFixedWidth(200)
+        self.add_btn_two.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn_two)
         
+        self.add_btn_two = QPushButton("Остальное")
+        self.add_btn_two.clicked.connect(self.btn_add_folder_cmd)
+        self.add_btn_two.setFixedWidth(150)
+        btns_lay.addWidget(self.add_btn_two)
+
         btns_lay.addStretch()
 
 
@@ -267,9 +273,10 @@ class AppStatement(QWidget):
         self.start_btn = QPushButton("Старт")
         self.start_btn.setFixedWidth(200)
         self.start_btn.clicked.connect(self.start_btn_start_cmd)
-        self.main_lay.addWidget(self.start_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        self.statement_widgets: list[StatementWidget] = []
+        self.main_lay.addWidget(
+            self.start_btn,
+            alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
     def browse_folder(self):
         directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
@@ -280,15 +287,15 @@ class AppStatement(QWidget):
 
     def add_statement_cmd(self):
         list_item = QListWidgetItem()
-        wid = StatementWidget(title="hello", parent=self)
+        wid = StatWid(title="hello", parent=self)
         wid.removed.connect(lambda: self.removed_cmd(list_item, wid))
         list_item.setSizeHint(wid.sizeHint())
         self.list_widget.addItem(list_item)
         self.list_widget.setItemWidget(list_item, wid)
-        self.statement_widgets.append(wid)
+        self.stat_wids.append(wid)
 
-    def removed_cmd(self, list_item: QListWidgetItem, wid: StatementWidget):
-        self.statement_widgets.remove(wid)
+    def removed_cmd(self, list_item: QListWidgetItem, wid: StatWid):
+        self.stat_wids.remove(wid)
 
         item_index = self.list_widget.row(list_item)
         item = self.list_widget.takeItem(item_index)
@@ -297,7 +304,7 @@ class AppStatement(QWidget):
 
 
     def start_btn_start_cmd(self):
-        if not self.statement_widgets:
+        if not self.stat_wids:
             return
 
         if not self.main_folder:
@@ -306,7 +313,7 @@ class AppStatement(QWidget):
 
         data = []
 
-        for i in self.statement_widgets:
+        for i in self.stat_wids:
             i_data = i.get_data()
 
             if i_data:
@@ -380,12 +387,12 @@ class AppStatement(QWidget):
 
     def add_folder_cmd(self, folder_path: str):
         list_item = QListWidgetItem()
-        wid = FolderWidget(path=folder_path, parent=self)
+        wid = FolderWid(path=folder_path, parent=self)
         wid.removed.connect(lambda: self.removed_cmd(list_item, wid))
         list_item.setSizeHint(wid.sizeHint())
         self.list_widget.addItem(list_item)
         self.list_widget.setItemWidget(list_item, wid)
-        self.statement_widgets.append(wid)
+        self.stat_wids.append(wid)
 
     def btn_add_folder_cmd(self):
         directory = QFileDialog.getExistingDirectory(self, "Выберите папку")

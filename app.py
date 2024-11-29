@@ -5,7 +5,7 @@ from app_statement import AppStatement
 class App(QWidget):
     def __init__(self):
         super().__init__()
-        self.setMinimumSize(560, 400)
+        self.setMinimumSize(560, 560)
 
         main_lay = QVBoxLayout()
         self.setLayout(main_lay)
