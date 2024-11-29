@@ -23,6 +23,7 @@ class StatWid(QWidget):
     def __init__(self, flag: str, dest: str = None):
         super().__init__()
         self.flag = flag
+        self.dest = None
 
         self.main_lay = QHBoxLayout()
         self.main_lay.setContentsMargins(10, 10, 10, 10)
@@ -77,6 +78,12 @@ class StatWid(QWidget):
             )
         except Exception:
             return None
+        
+        if self.flag == Cfg.NAMED_FOLDER:
+            src = os.sep + self.left_wid.text().strip()
+
+        elif self.flag == Cfg.FILE_FOLDER:
+            src = os.sep + self.dest.strip().strip(os.sep)
 
         # извлекаем инфу слева у нас там либо окно ввода для named folder
         # либо конкретная папка
@@ -84,7 +91,7 @@ class StatWid(QWidget):
 
         return {
             Cfg.FLAG: self.flag,
-            Cfg.SRC: self.left_wid.text(),
+            Cfg.SRC: src,
             Cfg.MAX_SIZE_KB: max_size_kb - 5
             }
 
