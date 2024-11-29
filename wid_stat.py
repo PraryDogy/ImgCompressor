@@ -141,10 +141,8 @@ class FolderWid(QWidget):
         left_lbl = QLabel(parent=self, text=f" Сжать ТОЛЬКО в этой папке")
         left_layout.addWidget(left_lbl)
 
-        if len(path) > 50:
-            path = "..." + path[-50:]
-
-        self.left_input = QLabel(text=path)
+        path = os.sep + path.strip().strip(os.sep)
+        self.left_input = QLabel(text=os.path.basename(path))
         self.left_input.setFixedHeight(30)
         left_layout.addWidget(self.left_input)
 
