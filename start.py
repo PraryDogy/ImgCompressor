@@ -40,13 +40,13 @@ if System_.set_plugin_path():
     System_.set_excepthook()
 
 
-from app_statement import AppStatement
+from app import App
 
-app = QApplication(sys.argv)
+app_ = QApplication(sys.argv)
 
 if not os.path.exists("lib"):
-    app.setWindowIcon(QIcon("icon.png"))
+    app_.setWindowIcon(QIcon("icon.png"))
 
-ex = AppStatement()
+ex = App()
 ex.show()
-sys.exit(app.exec_())
+sys.exit(app_.exec_())
