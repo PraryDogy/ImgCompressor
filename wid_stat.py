@@ -343,6 +343,25 @@ class WidStat(QWidget):
         # иначе фокус по умолчанию почему то на кнопке "главная папка"
         QTimer.singleShot(200, self.setFocus)
 
+
+
+
+
+        wid = StatWid(flag=FLAG_FOLDER, dest="/test/trste/sdgsd")
+        list_item = QListWidgetItem()
+        list_item.setSizeHint(wid.sizeHint())
+        self.list_widget.addItem(list_item)
+        self.list_widget.setItemWidget(list_item, wid)
+
+
+        wid = StatWid(flag=FLAG_STAT)
+        list_item = QListWidgetItem()
+        list_item.setSizeHint(wid.sizeHint())
+        self.list_widget.addItem(list_item)
+        self.list_widget.setItemWidget(list_item, wid)
+
+
+
     def browse_main_folder(self):
         dest = QFileDialog.getExistingDirectory(self, "Выберите папку")
         if dest:
