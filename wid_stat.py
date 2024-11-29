@@ -281,6 +281,7 @@ class WidStat(QWidget):
             alignment=Qt.AlignmentFlag.AlignCenter
         )
 
+        # иначе фокус по умолчанию почему то на кнопке "главная папка"
         QTimer.singleShot(200, self.setFocus)
 
     def browse_main_folder(self):
