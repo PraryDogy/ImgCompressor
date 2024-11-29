@@ -181,24 +181,24 @@ class WidStat(QWidget):
 
 
 
-        wid = StatWid(flag=FLAG_FOLDER, dest="/test/trste/sdgsd")
-        list_item = QListWidgetItem()
-        list_item.setSizeHint(wid.sizeHint())
-        self.list_widget.addItem(list_item)
-        self.list_widget.setItemWidget(list_item, wid)
+        # wid = StatWid(flag=FLAG_FOLDER, dest="/test/trste/sdgsd")
+        # list_item = QListWidgetItem()
+        # list_item.setSizeHint(wid.sizeHint())
+        # self.list_widget.addItem(list_item)
+        # self.list_widget.setItemWidget(list_item, wid)
 
 
-        wid = StatWid(flag=FLAG_STAT)
-        list_item = QListWidgetItem()
-        list_item.setSizeHint(wid.sizeHint())
-        self.list_widget.addItem(list_item)
-        self.list_widget.setItemWidget(list_item, wid)
+        # wid = StatWid(flag=FLAG_STAT)
+        # list_item = QListWidgetItem()
+        # list_item.setSizeHint(wid.sizeHint())
+        # self.list_widget.addItem(list_item)
+        # self.list_widget.setItemWidget(list_item, wid)
 
-        wid = StatWid(flag=FLAG_OTHER)
-        list_item = QListWidgetItem()
-        list_item.setSizeHint(wid.sizeHint())
-        self.list_widget.addItem(list_item)
-        self.list_widget.setItemWidget(list_item, wid)
+        # wid = StatWid(flag=FLAG_OTHER)
+        # list_item = QListWidgetItem()
+        # list_item.setSizeHint(wid.sizeHint())
+        # self.list_widget.addItem(list_item)
+        # self.list_widget.setItemWidget(list_item, wid)
 
 
     def browse_main_folder(self):
@@ -228,7 +228,7 @@ class WidStat(QWidget):
                 return
             
         elif flag == FLAG_OTHER:
-            ...
+            wid = StatWid(flag=FLAG_STAT)
 
         list_item = QListWidgetItem()
         cmd_ = lambda: self.stat_wid_removed_cmd(list_item, wid)
