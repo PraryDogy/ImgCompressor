@@ -17,6 +17,12 @@ FLAG_OTHER = "other"
 
 
 
+class CustomLineEdit(QLineEdit):
+    def __init__(self):
+        super().__init__()
+        self.setStyleSheet("padding-left: 2px; padding-right: 2px;")
+
+
 class StatWid(QWidget):
     removed = pyqtSignal()
 
@@ -34,14 +40,14 @@ class StatWid(QWidget):
                 dest.strip().strip(os.sep)
             )
 
-            dest_t = f"Все папки с именем: {dest_t}"
+            dest_t = f"Файл / папка: {dest_t}"
             self.left_wid = QLabel(text=dest_t)
 
         elif flag == FLAG_STAT:
             
-            self.left_wid = QLineEdit()
+            self.left_wid = CustomLineEdit()
             self.left_wid.setFixedHeight(30)
-            self.left_wid.setPlaceholderText("Имя папки")
+            self.left_wid.setPlaceholderText("Папка с именем ***")
 
         elif flag == FLAG_OTHER:
 
@@ -50,7 +56,7 @@ class StatWid(QWidget):
 
         self.main_lay.addWidget(self.left_wid)
 
-        self.right_wid = QLineEdit()
+        self.right_wid = CustomLineEdit()
         self.right_wid.setFixedHeight(30)
         self.right_wid.setFixedWidth(200)
         self.right_wid.setPlaceholderText("Размер в килобайтах")
@@ -77,180 +83,6 @@ class StatWid(QWidget):
             "src": src,
             "max_size_kb": max_size_kb - 5
         }
-
-
-# class StatWid(QWidget):
-#     removed = pyqtSignal()
-
-#     def __init__(self):
-#         super().__init__()
-
-#         v_layout = QVBoxLayout()
-#         v_layout.setContentsMargins(0, 0, 0, 0)
-#         self.setLayout(v_layout)
-
-#         h_wid = QWidget(parent=self)
-#         v_layout.addWidget(h_wid)
-
-#         h_layout = QHBoxLayout()
-#         h_layout.setContentsMargins(0, 0, 0, 0)
-#         h_wid.setLayout(h_layout)
-
-#         left_wid = QWidget(parent=self)
-#         h_layout.addWidget(left_wid)
-#         left_layout = QVBoxLayout()
-#         left_layout.setContentsMargins(0, 0, 0, 0)
-#         left_wid.setLayout(left_layout)
-
-#         left_lbl = QLabel(parent=self, text=f" Если имя папки РАВНОЗНАЧНО")
-#         left_layout.addWidget(left_lbl)
-
-#         self.left_input = QLineEdit(parent=self)
-#         self.left_input.setFixedHeight(30)
-#         self.left_input.setPlaceholderText("Имя папки")
-#         left_layout.addWidget(self.left_input)
-
-#         self.left_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
-#         QTimer.singleShot(500, lambda: self.left_input.setStyleSheet("padding-left: 5px;"))
-
-#         right_wid = QWidget(parent=self)
-#         h_layout.addWidget(right_wid, alignment=Qt.AlignmentFlag.AlignRight)
-#         right_layout = QVBoxLayout()
-#         right_layout.setContentsMargins(0, 0, 0, 0)
-#         right_wid.setLayout(right_layout)
-
-#         right_lbl = QLabel(parent=self, text=f" Уменьшить до kb")
-#         right_layout.addWidget(right_lbl)
-
-#         self.right_input = QLineEdit(parent=self)
-#         self.right_input.setFixedHeight(30)
-#         self.right_input.setFixedWidth(200)
-#         self.right_input.setPlaceholderText("Размер в килобайтах")
-#         right_layout.addWidget(self.right_input)
-
-#         self.right_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
-#         QTimer.singleShot(500, lambda: self.right_input.setStyleSheet("padding-left: 5px;"))
-
-
-#         self.remove_btn = QPushButton(parent=self, text="Удалить")
-#         self.remove_btn.setFixedWidth(200)
-#         self.remove_btn.clicked.connect(self.remove_btn_cmd)
-#         v_layout.addWidget(self.remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-
-#         v_layout.addSpacerItem(QSpacerItem(0, 10))
-#         v_layout.addWidget(self.my_sep())
-#         v_layout.addSpacerItem(QSpacerItem(0, 10))
-
-#     def remove_btn_cmd(self):
-#         self.removed.emit()
-
-#     def get_data(self):
-#         try:
-#             right_input_value = int(self.right_input.text().strip())
-#             right_input_value = right_input_value - 5
-#         except Exception as e:
-#             return None
-        
-#         left_input_value = self.left_input.text().strip()
-#         if not left_input_value:
-#             return None
-
-#         return {
-#             "folder_name": left_input_value,
-#             "file_size": right_input_value
-#             }
-
-#     def my_sep(self):
-#         sep = QFrame(parent=self)
-#         sep.setFixedHeight(1)
-#         sep.setStyleSheet("background-color: black;")
-#         return sep
-
-
-# class FolderWid(QWidget):
-#     removed = pyqtSignal()
-
-#     def __init__(self, path: str, parent: QWidget = None):
-#         super().__init__(parent)
-#         self.path_ = path
-
-#         v_layout = QVBoxLayout()
-#         v_layout.setContentsMargins(0, 0, 0, 0)
-#         self.setLayout(v_layout)
-
-#         h_wid = QWidget(parent=self)
-#         v_layout.addWidget(h_wid)
-
-#         h_layout = QHBoxLayout()
-#         h_layout.setContentsMargins(0, 0, 0, 0)
-#         h_wid.setLayout(h_layout)
-
-#         left_wid = QWidget(parent=self)
-#         h_layout.addWidget(left_wid)
-#         left_layout = QVBoxLayout()
-#         left_layout.setContentsMargins(0, 0, 0, 0)
-#         left_wid.setLayout(left_layout)
-
-#         left_lbl = QLabel(parent=self, text=f" Сжать ТОЛЬКО в этой папке")
-#         left_layout.addWidget(left_lbl)
-
-#         path = os.sep + path.strip().strip(os.sep)
-#         self.left_input = QLabel(text=os.path.basename(path))
-#         self.left_input.setFixedHeight(30)
-#         left_layout.addWidget(self.left_input)
-
-#         right_wid = QWidget(parent=self)
-#         h_layout.addWidget(right_wid, alignment=Qt.AlignmentFlag.AlignRight)
-#         right_layout = QVBoxLayout()
-#         right_layout.setContentsMargins(0, 0, 0, 0)
-#         right_wid.setLayout(right_layout)
-
-#         right_lbl = QLabel(parent=self, text=f" Уменьшить до kb")
-#         right_layout.addWidget(right_lbl)
-
-#         self.right_input = QLineEdit(parent=self)
-#         self.right_input.setFixedHeight(30)
-#         self.right_input.setFixedWidth(200)
-#         self.right_input.setPlaceholderText("Размер в килобайтах")
-#         right_layout.addWidget(self.right_input)
-
-#         self.right_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
-#         QTimer.singleShot(500, lambda: self.right_input.setStyleSheet("padding-left: 5px;"))
-
-#         self.remove_btn = QPushButton(parent=self, text="Удалить")
-#         self.remove_btn.setFixedWidth(200)
-#         self.remove_btn.clicked.connect(self.remove_btn_cmd)
-#         v_layout.addWidget(self.remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-
-#         v_layout.addSpacerItem(QSpacerItem(0, 10))
-#         v_layout.addWidget(self.my_sep())
-#         v_layout.addSpacerItem(QSpacerItem(0, 10))
-
-#     def remove_btn_cmd(self):
-#         self.removed.emit()
-
-#     def get_data(self):
-#         try:
-#             right_input_value = int(self.right_input.text().strip())
-#             # вычитаем 5кб от заданного размера на всякий случай
-#             right_input_value = right_input_value - 5
-#         except Exception as e:
-#             return None
-        
-#         left_input_value = self.path_.strip()
-#         if not left_input_value:
-#             return None
-
-#         return {
-#             "folder_name": left_input_value,
-#             "file_size": right_input_value
-#             }
-
-#     def my_sep(self):
-#         sep = QFrame(parent=self)
-#         sep.setFixedHeight(1)
-#         sep.setStyleSheet("background-color: black;")
-#         return sep
 
 
 class WidStat(QWidget):
@@ -362,6 +194,11 @@ class WidStat(QWidget):
         self.list_widget.addItem(list_item)
         self.list_widget.setItemWidget(list_item, wid)
 
+        wid = StatWid(flag=FLAG_OTHER)
+        list_item = QListWidgetItem()
+        list_item.setSizeHint(wid.sizeHint())
+        self.list_widget.addItem(list_item)
+        self.list_widget.setItemWidget(list_item, wid)
 
 
     def browse_main_folder(self):
