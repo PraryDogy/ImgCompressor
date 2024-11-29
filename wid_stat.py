@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 
 from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
@@ -27,7 +28,7 @@ class StatWid(QWidget):
         self.main_lay.setContentsMargins(10, 10, 10, 10)
         self.setLayout(self.main_lay)
 
-        if flag == Cfg.FLAG_FILE_FOLDER and dest:
+        if flag == Cfg.FILE_FOLDER and dest:
             
             self.dest = dest
 
@@ -38,13 +39,13 @@ class StatWid(QWidget):
             dest_t = f"Папка / файл: {dest_t}"
             self.left_wid = QLabel(text=dest_t)
 
-        elif flag == Cfg.FLAG_NAMED_FOLDER:
+        elif flag == Cfg.NAMED_FOLDER:
             
             self.left_wid = CustomLineEdit()
             self.left_wid.setFixedHeight(30)
             self.left_wid.setPlaceholderText("Папка с именем ***")
 
-        elif flag == Cfg.FLAG_MAIN_FOLDER:
+        elif flag == Cfg.MAIN_FOLDER:
 
             self.left_wid = QLabel(text="Остальное")
 
@@ -70,22 +71,22 @@ class StatWid(QWidget):
 
         max_size_kb = self.right_wid.text().strip()
 
-        if not isinstance(max_size_kb, int):
+        try:
+            max_size_kb = int(
+                self.right_wid.text().strip()
+            )
+        except Exception:
             return None
 
-
-        if self.flag in (Cfg.FLAG_NAMED_FOLDER, Cfg.FLAG_MAIN_FOLDER):
-            src = ""
-
-        else:
-            src = self.left_wid.text().strip()
+        # извлекаем инфу слева у нас там либо окно ввода для named folder
+        # либо конкретная папка
+        # либо это все остальные файлы
 
         return {
-            Cfg.KEY_FLAG: self.flag,
-            Cfg.KEY_SRC: src,
-            # вычитаем из пользовательского размера еще 5кб для безопасности
-            Cfg.KEY_MAX_SIZE: max_size_kb - 5
-        }
+            Cfg.FLAG: self.flag,
+            Cfg.SRC: self.left_wid.text(),
+            Cfg.MAX_SIZE_KB: max_size_kb - 5
+            }
 
 
 class WidStat(QWidget):
@@ -143,17 +144,17 @@ class WidStat(QWidget):
         self.btns_wid.setLayout(btns_lay)
 
         self.add_btn = QPushButton("Условие")
-        self.add_btn.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FLAG_NAMED_FOLDER))
+        self.add_btn.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.NAMED_FOLDER))
         self.add_btn.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn)
 
         self.add_btn_two = QPushButton("Папка / файл")
-        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FLAG_FILE_FOLDER))
+        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FILE_FOLDER))
         self.add_btn_two.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn_two)
         
         self.add_btn_two = QPushButton("Остальное")
-        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.FLAG_MAIN_FOLDER))
+        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=Cfg.MAIN_FOLDER))
         self.add_btn_two.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn_two)
 
@@ -180,30 +181,6 @@ class WidStat(QWidget):
         # иначе фокус по умолчанию почему то на кнопке "главная папка"
         QTimer.singleShot(200, self.setFocus)
 
-
-
-
-
-        # wid = StatWid(flag=FLAG_FOLDER, dest="/test/trste/sdgsd")
-        # list_item = QListWidgetItem()
-        # list_item.setSizeHint(wid.sizeHint())
-        # self.list_widget.addItem(list_item)
-        # self.list_widget.setItemWidget(list_item, wid)
-
-
-        # wid = StatWid(flag=FLAG_STAT)
-        # list_item = QListWidgetItem()
-        # list_item.setSizeHint(wid.sizeHint())
-        # self.list_widget.addItem(list_item)
-        # self.list_widget.setItemWidget(list_item, wid)
-
-        # wid = StatWid(flag=FLAG_OTHER)
-        # list_item = QListWidgetItem()
-        # list_item.setSizeHint(wid.sizeHint())
-        # self.list_widget.addItem(list_item)
-        # self.list_widget.setItemWidget(list_item, wid)
-
-
     def browse_main_folder(self):
         dest = QFileDialog.getExistingDirectory(self, "Выберите папку")
         if dest:
@@ -217,21 +194,21 @@ class WidStat(QWidget):
             self.show_warning("Укажите главную папку")
             return
 
-        if flag == Cfg.FLAG_NAMED_FOLDER:
-            wid = StatWid(flag=Cfg.FLAG_NAMED_FOLDER)
+        if flag == Cfg.NAMED_FOLDER:
+            wid = StatWid(flag=Cfg.NAMED_FOLDER)
 
-        elif flag == Cfg.FLAG_FILE_FOLDER:
+        elif flag == Cfg.FILE_FOLDER:
 
             if dest is None:
                 dest = QFileDialog.getExistingDirectory(self)
 
             if dest:
-                wid = StatWid(flag=Cfg.FLAG_FILE_FOLDER, dest=dest)
+                wid = StatWid(flag=Cfg.FILE_FOLDER, dest=dest)
             else:
                 return
             
-        elif flag == Cfg.FLAG_MAIN_FOLDER:
-            wid = StatWid(flag=Cfg.FLAG_NAMED_FOLDER)
+        elif flag == Cfg.MAIN_FOLDER:
+            wid = StatWid(flag=Cfg.NAMED_FOLDER)
 
         list_item = QListWidgetItem()
         cmd_ = lambda: self.stat_wid_removed_cmd(list_item, wid)
@@ -249,14 +226,24 @@ class WidStat(QWidget):
         del item
 
     def get_total_data(self) -> list[dict]:
-        data = []
-        for i in self.stat_wids:
-            i_data = i.get_data()
+        total_data = defaultdict(list)
+
+        for wid in self.stat_wids:
+
+            data = wid.get_data()
+
             if data is None:
                 return None
+
             else:
-                data.append(i_data)
-        return data
+                total_data[data.get(Cfg.FLAG)].append(
+                    {
+                        Cfg.SRC: data.get(Cfg.SRC),
+                        Cfg.MAX_SIZE_KB: data.get(Cfg.MAX_SIZE_KB)
+                    }
+                )
+
+        return total_data
 
     def start_btn_cmd(self):
 

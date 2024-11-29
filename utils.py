@@ -5,8 +5,6 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal
 
 from cfg import Cfg
 
-IMG_EXTS = ('.jpg', '.jpeg', '.png')
-
 
 class Shared:
     flag = True
@@ -91,7 +89,7 @@ class NoStatementTask(QThread):
                     if not self.can_run:
                         return
 
-                    if file.endswith(IMG_EXTS):
+                    if file.endswith(Cfg.IMG_EXTS):
                         self.total += 1
 
     def compress_img(self, img_src: str, max_size_kb: int):
@@ -122,7 +120,7 @@ class NoStatementTask(QThread):
                 if not self.can_run:
                     return
 
-                if file.endswith(IMG_EXTS):
+                if file.endswith(Cfg.IMG_EXTS):
                     img_src = os.path.join(root, file)
                     try:
                         Utils.resize_image(
@@ -147,7 +145,7 @@ class StatementTask(QThread):
     finished_ = pyqtSignal()
     force_cancel = pyqtSignal()
 
-    def __init__(self, main_folder: str, data: list[dict]):
+    def __init__(self, main_folder: str, data: dict[list[dict]]):
         super().__init__()
 
         self.force_cancel.connect(self.stop_cmd)
@@ -157,86 +155,18 @@ class StatementTask(QThread):
         self.can_run = True
 
     def run(self):
-        self.process_images(root_dir=self.root_dir, data=self.data)
+        print(self.data)
+        # self.process_images(main_folder=self.root_dir, data=self.data)
         self.finished.emit()
 
     def stop_cmd(self):
         self.can_run = False
 
-    def process_images(self, root_dir: str, data: list[dict]):
-        named_folders: list[dict] = []
-        file_folders: list[dict] = []
-        
+    def process_images(self, main_folder: str, data: list[dict]):
+        ... 
 
-        for i in data:
+        # давай сначала найдем все изображения которые надо сжать и заодно
+        # это будет тотал изображений
 
-            if i.get(Cfg.KEY_FLAG) == Cfg.FLAG_NAMED_FOLDER:
-                named_folders.append(i)
 
-            elif i.get(Cfg.KEY_FLAG) == Cfg.FLAG_MAIN_FOLDER:
-                ...
-
-            elif i.get(Cfg.KEY_FLAG) == Cfg.FLAG_FILE_FOLDER:
-                file_folders.append(i)
-
-        # делаем ресайзы в конкретных папках
-        for dict_ in file_folders:
-
-            if not self.can_run:
-                return
-
-            self.walk_folder(
-                dict_.get("folder_name"),
-                dict_.get("file_size")
-                )
-            
-        # делаем ресайзы в конкретных папках
-        for dict_ in files_:
-
-            if not self.can_run:
-                return
-
-            Utils.resize_image(
-                dict_.get("folder_name"),
-                dict_.get("file_size")
-                )
-
-        # делаем ресайзы в папках с именами
-        # for root, _, files in os.walk(root_dir):
-
-        #     for filename in files:
-
-        #         if not self.can_run:
-        #             return
-
-        #         if filename.lower().endswith(IMG_EXTS):
-
-        #             image_path = os.path.join(root, filename)
-
-        #             for data_dict in folder_names:
-        #                 folder_name = data_dict.get("folder_name")
-
-        #                 if os.sep + folder_name + os.sep in image_path:
-        #                     if not self.can_run:
-
-        #                         Utils.resize_image(
-        #                             image_path=image_path,
-        #                             max_size_kb=data_dict["file_size"]
-        #                         )
-
-    def walk_folder(self, folder_path, max_size_kb: int):
-
-        for root, dirs, files in os.walk(folder_path):
-
-            if not Shared.flag:
-                return
-
-            for file in files:
-
-                if not Shared.flag:
-                    return
-
-                src: str = os.path.join(root, file)
-
-                if src.lower().endswith(IMG_EXTS):
-                    Utils.resize_image(src, max_size_kb)
+        # [ {"NAMED_FOLDER"}]
