@@ -64,8 +64,6 @@ class StatWid(QWidget):
             self.left_wid.setPlaceholderText("Папка с именем ***")
 
         elif flag == Cfg.OTHERS:
-            print(23)
-
             self.left_wid = QLabel(text="Остальное")
 
 
@@ -102,6 +100,9 @@ class StatWid(QWidget):
 
         elif self.flag == Cfg.SPECIFIC_FOLDERS:
             src = os.sep + self.dest.strip().strip(os.sep)
+
+        elif self.flag == Cfg.OTHERS:
+            src = None
 
         # извлекаем инфу слева у нас там либо окно ввода для named folder
         # либо конкретная папка
@@ -234,16 +235,21 @@ class WidStat(QWidget):
             
         elif flag == Cfg.OTHERS:
             wid = StatWid(flag=Cfg.OTHERS)
+            self.add_btn_three.setDisabled(True)
 
         list_item = QListWidgetItem()
-        cmd_ = lambda: self.stat_wid_removed_cmd(list_item, wid)
+        cmd_ = lambda: self.stat_wid_removed_cmd(list_item, wid, flag)
         wid.removed.connect(cmd_)
         list_item.setSizeHint(wid.sizeHint())
         self.list_widget.addItem(list_item)
         self.list_widget.setItemWidget(list_item, wid)
         self.stat_wids.append(wid)
 
-    def stat_wid_removed_cmd(self, list_item: QListWidgetItem, wid: StatWid):
+    def stat_wid_removed_cmd(self, list_item: QListWidgetItem, wid: StatWid, flag: str):
+
+        if flag == Cfg.OTHERS:
+            self.add_btn_three.setDisabled(False)
+
         self.stat_wids.remove(wid)
         item_index = self.list_widget.row(list_item)
         item = self.list_widget.takeItem(item_index)
@@ -259,9 +265,6 @@ class WidStat(QWidget):
 
             if data is None:
                 return None
-
-            if data.get(Cfg.FLAG) == Cfg.OTHERS:
-                print("others pressed")
 
             else:
                 total_data[data.get(Cfg.FLAG)].append(
@@ -291,6 +294,8 @@ class WidStat(QWidget):
                     "Слева имя папки, справа целое число"
                 ]
             self.show_warning("\n".join(t))
+
+        print(data)
 
         return
         self.task = StatementTask(
