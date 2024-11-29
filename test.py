@@ -35,7 +35,7 @@ class FileProcessor:
                 if os.path.isfile(img_src) and img_src.endswith(Cfg.IMG_EXTS):
                     self.compress[img_src] = max_size_kb
 
-    def remaining_files_cmd(self, base_path):
+    def remaining_files_cmd(self, base_path, others: dict[list]):
         for root, dirs, files in os.walk(base_path):
             for name in dirs + files:
                 item_path = os.path.join(root, name)
