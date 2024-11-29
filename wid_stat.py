@@ -8,12 +8,7 @@ from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
                              QMessageBox, QPushButton, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from cfg import Cfg
 from utils import StatementTask
-
-
-class Shared:
-    my_app = None
 
 
 class StatWid(QWidget):
