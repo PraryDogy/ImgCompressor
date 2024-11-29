@@ -219,12 +219,11 @@ class WidStat(QWidget):
         browse_lay.addWidget(self.browse_btn)
 
 
-
         self.browse_label_path = QLabel('Можно перетянуть сюда главную папку')
         browse_lay.addWidget(self.browse_label_path)
 
         t = [
-            "Сжатие по условиям: укажите главную папку",
+            "Описание условий",
             "",
             "Условие:",
             "Папка с именем *** внутри главной папки будет сжата до *** кб",
@@ -281,6 +280,8 @@ class WidStat(QWidget):
             self.start_btn,
             alignment=Qt.AlignmentFlag.AlignCenter
         )
+
+        QTimer.singleShot(200, self.setFocus)
 
     def browse_main_folder(self):
         directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
