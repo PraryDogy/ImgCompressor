@@ -22,7 +22,6 @@ class DynamicWidget(QWidget):
     def __init__(self, parent: QWidget, path_: str):
         super().__init__(parent=parent)
     
-        self.parent_ = parent
         self.path_ = path_
 
         v_layout = QVBoxLayout()
@@ -77,33 +76,11 @@ class DynamicWidget(QWidget):
 class AppSimple(QWidget):
     def __init__(self):
         super().__init__()
-
         self.setAcceptDrops(True)
-        self.initUI()
 
-    def initUI(self):
-        self.setWindowTitle(f'{Cfg.app_name}: сжатие без условий')
-
-        self.setMinimumSize(560, 400)
-
-        if Cfg.geo:
-            self.setGeometry(Cfg.geo)
-        else:
-            self.resize(560, 400)
-            geo = QApplication.primaryScreen().geometry()
-            x = geo.width() // 2 - self.width() // 2
-            y = geo.height() // 2 - self.height() // 2
-            self.move(x, y)
-
-        self.v_layout = QVBoxLayout()
-        self.v_layout.setContentsMargins(0, 10, 0, 0)
-        self.setLayout(self.v_layout)
-
-
-        self.mode_btn = QPushButton("Включить сжатие по условиям")
-        self.mode_btn.clicked.connect(self.mode_btn_cmd)
-        self.v_layout.addWidget(self.mode_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-
+        self.main_lay = QVBoxLayout()
+        self.main_lay.setContentsMargins(0, 10, 0, 0)
+        self.setLayout(self.main_lay)
 
         t = [
             "Сжатие без условий:",
@@ -114,12 +91,12 @@ class AppSimple(QWidget):
         t = "\n".join(t)
 
         self.browseTitle = QLabel(t)
-        self.v_layout.addWidget(self.browseTitle)
+        self.main_lay.addWidget(self.browseTitle)
 
         self.list_widget = QListWidget(parent=self)
         self.list_widget.setSelectionMode(QListWidget.NoSelection)
         self.list_widget.verticalScrollBar().setSingleStep(15)
-        self.v_layout.addWidget(self.list_widget)
+        self.main_lay.addWidget(self.list_widget)
 
         spacer_item = QListWidgetItem()
         spacer_item.setSizeHint(QSize(0, 10))
@@ -128,7 +105,7 @@ class AppSimple(QWidget):
         self.start_btn = QPushButton("Старт")
         self.start_btn.setFixedWidth(200)
         self.start_btn.clicked.connect(self.start_btn_start_cmd)
-        self.v_layout.addWidget(self.start_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.main_lay.addWidget(self.start_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.statement_widgets: list[DynamicWidget] = []
 
@@ -197,23 +174,6 @@ class AppSimple(QWidget):
         msg.setGeometry(geo)
 
         msg.exec_()
-
-    def mode_btn_cmd(self):
-        from app_statement import AppStatement
-        self.hide()
-
-        Cfg.geo = self.geometry()
-
-        self.app_ext = AppStatement()
-        Shared.my_app = self.app_ext
-        self.app_ext.show()
-
-        try:
-            self.task_.force_cancel.emit()
-        except Exception as e:
-            pass
-
-        self.deleteLater()
 
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
         self.raise_()

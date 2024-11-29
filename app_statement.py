@@ -21,7 +21,6 @@ class StatementWidget(QWidget):
 
     def __init__(self, title: str, parent: QWidget = None):
         super().__init__(parent)
-        self.my_parent = parent
 
         v_layout = QVBoxLayout()
         v_layout.setContentsMargins(0, 0, 0, 0)
@@ -110,7 +109,6 @@ class FolderWidget(QWidget):
 
     def __init__(self, path: str, parent: QWidget = None):
         super().__init__(parent)
-        self.my_parent = parent
         self.path_ = path
 
         v_layout = QVBoxLayout()
@@ -196,36 +194,17 @@ class FolderWidget(QWidget):
 class AppStatement(QWidget):
     def __init__(self):
         super().__init__()
-
-        self.main_folder = None
-        self.initUI()
-
-    def initUI(self):
         self.setAcceptDrops(True)
-        self.setWindowTitle(f'{Cfg.app_name}: сжатие по условиям')
-        self.setMinimumSize(560, 440)
+        self.main_folder = None
 
-        if Cfg.geo:
-            self.setGeometry(Cfg.geo)
-        else:
-            self.resize(560, 400)
-
-
-        self.v_layout = QVBoxLayout()
-        self.v_layout.setContentsMargins(0, 10, 0, 0)
-        self.setLayout(self.v_layout)
-
-
-        self.mode_btn = QPushButton("Включить сжатие без условий")
-        self.mode_btn.clicked.connect(self.mode_btn_cmd)
-        self.v_layout.addWidget(self.mode_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-
-
+        self.main_lay = QVBoxLayout()
+        self.main_lay.setContentsMargins(0, 10, 0, 0)
+        self.setLayout(self.main_lay)
 
 
         self.browse_wid = QWidget()
         self.browse_wid.setFixedHeight(50)
-        self.v_layout.addWidget(self.browse_wid)
+        self.main_lay.addWidget(self.browse_wid)
 
         browse_lay = QHBoxLayout()
         browse_lay.setContentsMargins(0, 0, 0, 0)
@@ -257,7 +236,7 @@ class AppStatement(QWidget):
         ]
         t = "\n".join(t)
         self.description = QLabel(t)
-        self.v_layout.addWidget(self.description)
+        self.main_lay.addWidget(self.description)
 
 
 
@@ -267,7 +246,7 @@ class AppStatement(QWidget):
 
 
         self.btns_wid = QWidget()
-        self.v_layout.addWidget(self.btns_wid)
+        self.main_lay.addWidget(self.btns_wid)
 
         btns_lay = QHBoxLayout()
         btns_lay.setContentsMargins(0, 0, 0, 0)
@@ -288,7 +267,7 @@ class AppStatement(QWidget):
         self.list_widget = QListWidget(parent=self)
         self.list_widget.verticalScrollBar().setSingleStep(15)
         self.list_widget.setSelectionMode(QListWidget.NoSelection)
-        self.v_layout.addWidget(self.list_widget)
+        self.main_lay.addWidget(self.list_widget)
 
         spacer_item = QListWidgetItem()
         spacer_item.setSizeHint(QSize(0, 10))
@@ -297,7 +276,7 @@ class AppStatement(QWidget):
         self.start_btn = QPushButton("Старт")
         self.start_btn.setFixedWidth(200)
         self.start_btn.clicked.connect(self.start_btn_start_cmd)
-        self.v_layout.addWidget(self.start_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.main_lay.addWidget(self.start_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.statement_widgets: list[StatementWidget] = []
 
@@ -369,22 +348,6 @@ class AppStatement(QWidget):
         msg.setGeometry(geo)
 
         msg.exec_()
-
-    def mode_btn_cmd(self):
-        from app_simple import AppSimple
-        self.hide()
-
-        Cfg.geo = self.geometry()
-        self.app_ext = AppSimple()
-        Shared.my_app = self.app_ext
-        self.app_ext.show()
-
-        try:
-            self.task.force_cancel.emit()
-        except Exception as e:
-            pass
-
-        self.deleteLater()
 
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
         self.raise_()
