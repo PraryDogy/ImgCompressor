@@ -215,9 +215,9 @@ class WidStat(QWidget):
 
     def add_stat_wid(self, flag: str, dest: str = None):
 
-        # if not self.main_folder:
-        #     self.show_warning("Укажите главную папку")
-        #     return
+        if not self.main_folder:
+            self.show_warning("Укажите главную папку")
+            return
 
         if flag == Cfg.NAMED_FOLDERS:
             wid = StatWid(flag=Cfg.NAMED_FOLDERS)
@@ -354,11 +354,11 @@ class WidStat(QWidget):
                 path_ = path_.toLocalFile()
 
                 if not self.main_folder:
-                    self.show_warning("Сначала укажите главную папку")
+                    self.show_warning("Укажите главную папку")
                     break
 
                 if self.main_folder in path_ and self.main_folder != path_:
-                    self.add_stat_wid(flag="folder", dest=path_)
+                    self.add_stat_wid(flag=Cfg.SPECIFIC_FOLDERS, dest=path_)
 
                 else:
                     self.show_warning("Файл / папка должны быть в главной папке")
