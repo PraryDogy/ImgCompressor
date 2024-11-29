@@ -62,8 +62,7 @@ class FileProcessor:
         if others:
             self.remaining_files_cmd(self.base_path, others)
 
-        for img_src, max_size_kb in self.compress.items():
-            print(img_src, max_size_kb)
+        return self.compress
 
 # Пример использования
 base_path = '/Users/Loshkarev/Desktop/test'
@@ -83,4 +82,4 @@ data = {
 }
 
 prc = FileProcessor(base_path, data)
-prc.get_compress_list()
+compress_list = prc.get_compress_list()
