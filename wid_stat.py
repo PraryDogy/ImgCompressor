@@ -1,11 +1,14 @@
 import os
 from collections import defaultdict
 
-from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
-from PyQt5.QtWidgets import (QFileDialog, QHBoxLayout, QLabel, QLineEdit,
-                             QListWidget, QListWidgetItem, QMessageBox,
-                             QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtCore import QEvent, QSize, Qt, QTimer, pyqtSignal
+from PyQt5.QtGui import (QDragEnterEvent, QDragLeaveEvent, QDropEvent,
+                         QFontMetrics, QMouseEvent, QPainter, QPaintEvent,
+                         QWheelEvent)
+from PyQt5.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
+                             QLineEdit, QListWidget, QListWidgetItem,
+                             QMessageBox, QPushButton, QSlider, QVBoxLayout,
+                             QWidget)
 
 from cfg import Cfg
 from utils import StatementTask
@@ -16,6 +19,21 @@ class CustomLineEdit(QLineEdit):
         super().__init__()
         self.setStyleSheet("padding-left: 2px; padding-right: 2px;")
 
+
+class MyLabel(QLabel):
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
+        painter = QPainter(self)
+
+        metrics = QFontMetrics(self.font())
+        elided = metrics.elidedText(
+            self.text(),
+            Qt.TextElideMode.ElideNone,
+            self.width()
+        )
+
+        painter.drawText(self.rect(), self.alignment(), elided)
+        return super().paintEvent(a0)
+    
 
 class StatWid(QWidget):
     removed = pyqtSignal()
@@ -32,6 +50,11 @@ class StatWid(QWidget):
         if flag == Cfg.FILE_FOLDER and dest:
 
             self.dest = dest
+
+            limit = 50
+            if len(dest) > limit:
+                dest = "..." + dest[:limit]
+
             self.left_wid = QLabel(text=dest)
 
         elif flag == Cfg.NAMED_FOLDER:
