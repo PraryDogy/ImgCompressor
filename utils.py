@@ -234,11 +234,16 @@ class StatementTask(QThread):
 
     def run(self):
         self.compressor = FileProcessor()
-        self.compress_list = self.compressor.get_compress_list()
+        self.compress_list: dict[str, int] = self.compressor.get_compress_list()
+        self.total_ = len(self.compress_list)
 
     def compress_images(self):
-        for data in self.compress_list:
-            ...
+        for img_src, max_size_kb in self.compress_list.items():
+            try:
+                Utils.resize_image(img_src, max_size_kb)
+            except Exception as e:
+                print("utils compress error", e)
+                continue
 
     def stop_cmd(self):
         self.compressor.stop_cmd()
