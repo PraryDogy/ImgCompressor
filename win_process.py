@@ -42,7 +42,7 @@ class ProcessWin(QWidget):
         try:
             place = os.path.basename(place.strip().strip(os.sep))
             self.total_label.setText(f"Сжато: {current} из {total}")
-            self.place_label.setText(f"Папка: {place}")
+            self.place_label.setText(f"{place}")
         except RuntimeError:
             ...
 
