@@ -54,7 +54,7 @@ class StatWid(QWidget):
 
             limit = 50
             if len(dest) > limit:
-                dest = "..." + dest[:limit]
+                dest = "..." + dest[-limit:]
 
             self.left_wid = QLabel(text=dest)
 

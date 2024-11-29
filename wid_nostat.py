@@ -2,9 +2,9 @@ import os
 
 from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent
-from PyQt5.QtWidgets import (QFrame, QLabel, QLineEdit, QListWidget,
-                             QListWidgetItem, QMessageBox, QPushButton,
-                             QSpacerItem, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QLineEdit,
+                             QListWidget, QListWidgetItem, QMessageBox,
+                             QPushButton, QSpacerItem, QVBoxLayout, QWidget)
 
 from utils import NoStatementTask
 from win_process import ProcessWin
@@ -18,32 +18,29 @@ class DynamicWidget(QWidget):
     
         self.path_ = path_
 
-        v_layout = QVBoxLayout()
-        v_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(v_layout)
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(h_lay)
 
-        self.path_lbl = QLabel(text=path_)
-        v_layout.addWidget(self.path_lbl)
+        limit = 50
+        if len(path_) > limit:
+            dest = "..." + path_[-limit:]
+        else:
+            dest = path_
 
-        input_label = QLabel(parent=self, text=" До какого размера сжать в kb")
-        v_layout.addWidget(input_label)
+        self.path_lbl = QLabel(text=dest)
+        h_lay.addWidget(self.path_lbl)
 
         self.input_wid = QLineEdit(parent=self)
+        self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 2px;")
         self.input_wid.setPlaceholderText("Введите целое число")
-        self.input_wid.setFixedSize(250, 30)
-        v_layout.addWidget(self.input_wid)
+        self.input_wid.setFixedSize(170, 30)
+        h_lay.addWidget(self.input_wid)
 
-        self.input_wid.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
-        QTimer.singleShot(500, lambda: self.input_wid.setStyleSheet("padding-left: 5px;"))
-
-        self.remove_btn = QPushButton(parent=self, text="Удалить")
-        self.remove_btn.setFixedWidth(200)
-        self.remove_btn.clicked.connect(self.remove_btn_cmd)
-        v_layout.addWidget(self.remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        v_layout.addSpacerItem(QSpacerItem(0, 10))
-        v_layout.addWidget(self.my_sep())
-        v_layout.addSpacerItem(QSpacerItem(0, 10))
+        self.remove_btn = QPushButton(text="x")
+        self.remove_btn.setFixedWidth(40)
+        self.remove_btn.clicked.connect(self.removed.emit)
+        h_lay.addWidget(self.remove_btn)
 
     def remove_btn_cmd(self):
         self.removed.emit()
@@ -78,8 +75,8 @@ class WidNoStat(QWidget):
 
         t = [
             "Сжатие без условий:",
-            "Перетяните файлы или папки и программа",
-            "сожмет все изображения внутри этих папок."
+            "Перетяните папку / файл, укажите размер,",
+            "Программа сожмет все изображения внутри этой папки."
         ]
 
         t = "\n".join(t)
@@ -152,7 +149,7 @@ class WidNoStat(QWidget):
         self.task_.feedback.connect(lambda data: self.win_.set_labels_cmd(**data))
 
         self.task_.start()
-        self.win_.center_relative_parent(parent=self)
+        self.win_.center_relative_parent(parent=self.window())
         self.win_.show()
 
     def finished_task(self):
@@ -168,7 +165,7 @@ class WidNoStat(QWidget):
         msg.adjustSize()
 
         geo = msg.geometry()
-        geo.moveCenter(self.geometry().center())
+        geo.moveCenter(self.window().geometry().center())
         msg.setGeometry(geo)
 
         msg.exec_()
