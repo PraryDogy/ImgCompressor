@@ -170,5 +170,5 @@ class StatementTask(QThread):
 
         # [ {"NAMED_FOLDER"}]
 
-        named_folders = self.data.get(Cfg.NAMED_FOLDER)
+        named_folders = self.data.get(Cfg.NAMED_FOLDERS)
 

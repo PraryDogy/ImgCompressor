@@ -2,9 +2,9 @@ class Cfg:
     app_name = "ImgCompressor"
     app_ver = "1.1.0"
 
-    NAMED_FOLDER = "named_folder"
-    MAIN_FOLDER = "main_folder"
-    FILE_FOLDER = "folder"
+    NAMED_FOLDERS = "named_folders"
+    OTHERS = "___others___"
+    SPECIFIC_FOLDERS = "specific_folders"
 
     FLAG = "flag"
     SRC = "src"
