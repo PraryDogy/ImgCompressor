@@ -17,7 +17,7 @@ FLAG_OTHER = "other"
 
 
 
-class StatWidBase(QWidget):
+class StatWid(QWidget):
     removed = pyqtSignal()
 
     def __init__(self, flag: str, dest: str = None):
@@ -77,178 +77,178 @@ class StatWidBase(QWidget):
         }
 
 
-class StatWid(QWidget):
-    removed = pyqtSignal()
+# class StatWid(QWidget):
+#     removed = pyqtSignal()
 
-    def __init__(self):
-        super().__init__()
+#     def __init__(self):
+#         super().__init__()
 
-        v_layout = QVBoxLayout()
-        v_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(v_layout)
+#         v_layout = QVBoxLayout()
+#         v_layout.setContentsMargins(0, 0, 0, 0)
+#         self.setLayout(v_layout)
 
-        h_wid = QWidget(parent=self)
-        v_layout.addWidget(h_wid)
+#         h_wid = QWidget(parent=self)
+#         v_layout.addWidget(h_wid)
 
-        h_layout = QHBoxLayout()
-        h_layout.setContentsMargins(0, 0, 0, 0)
-        h_wid.setLayout(h_layout)
+#         h_layout = QHBoxLayout()
+#         h_layout.setContentsMargins(0, 0, 0, 0)
+#         h_wid.setLayout(h_layout)
 
-        left_wid = QWidget(parent=self)
-        h_layout.addWidget(left_wid)
-        left_layout = QVBoxLayout()
-        left_layout.setContentsMargins(0, 0, 0, 0)
-        left_wid.setLayout(left_layout)
+#         left_wid = QWidget(parent=self)
+#         h_layout.addWidget(left_wid)
+#         left_layout = QVBoxLayout()
+#         left_layout.setContentsMargins(0, 0, 0, 0)
+#         left_wid.setLayout(left_layout)
 
-        left_lbl = QLabel(parent=self, text=f" Если имя папки РАВНОЗНАЧНО")
-        left_layout.addWidget(left_lbl)
+#         left_lbl = QLabel(parent=self, text=f" Если имя папки РАВНОЗНАЧНО")
+#         left_layout.addWidget(left_lbl)
 
-        self.left_input = QLineEdit(parent=self)
-        self.left_input.setFixedHeight(30)
-        self.left_input.setPlaceholderText("Имя папки")
-        left_layout.addWidget(self.left_input)
+#         self.left_input = QLineEdit(parent=self)
+#         self.left_input.setFixedHeight(30)
+#         self.left_input.setPlaceholderText("Имя папки")
+#         left_layout.addWidget(self.left_input)
 
-        self.left_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
-        QTimer.singleShot(500, lambda: self.left_input.setStyleSheet("padding-left: 5px;"))
+#         self.left_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
+#         QTimer.singleShot(500, lambda: self.left_input.setStyleSheet("padding-left: 5px;"))
 
-        right_wid = QWidget(parent=self)
-        h_layout.addWidget(right_wid, alignment=Qt.AlignmentFlag.AlignRight)
-        right_layout = QVBoxLayout()
-        right_layout.setContentsMargins(0, 0, 0, 0)
-        right_wid.setLayout(right_layout)
+#         right_wid = QWidget(parent=self)
+#         h_layout.addWidget(right_wid, alignment=Qt.AlignmentFlag.AlignRight)
+#         right_layout = QVBoxLayout()
+#         right_layout.setContentsMargins(0, 0, 0, 0)
+#         right_wid.setLayout(right_layout)
 
-        right_lbl = QLabel(parent=self, text=f" Уменьшить до kb")
-        right_layout.addWidget(right_lbl)
+#         right_lbl = QLabel(parent=self, text=f" Уменьшить до kb")
+#         right_layout.addWidget(right_lbl)
 
-        self.right_input = QLineEdit(parent=self)
-        self.right_input.setFixedHeight(30)
-        self.right_input.setFixedWidth(200)
-        self.right_input.setPlaceholderText("Размер в килобайтах")
-        right_layout.addWidget(self.right_input)
+#         self.right_input = QLineEdit(parent=self)
+#         self.right_input.setFixedHeight(30)
+#         self.right_input.setFixedWidth(200)
+#         self.right_input.setPlaceholderText("Размер в килобайтах")
+#         right_layout.addWidget(self.right_input)
 
-        self.right_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
-        QTimer.singleShot(500, lambda: self.right_input.setStyleSheet("padding-left: 5px;"))
+#         self.right_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
+#         QTimer.singleShot(500, lambda: self.right_input.setStyleSheet("padding-left: 5px;"))
 
 
-        self.remove_btn = QPushButton(parent=self, text="Удалить")
-        self.remove_btn.setFixedWidth(200)
-        self.remove_btn.clicked.connect(self.remove_btn_cmd)
-        v_layout.addWidget(self.remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+#         self.remove_btn = QPushButton(parent=self, text="Удалить")
+#         self.remove_btn.setFixedWidth(200)
+#         self.remove_btn.clicked.connect(self.remove_btn_cmd)
+#         v_layout.addWidget(self.remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        v_layout.addSpacerItem(QSpacerItem(0, 10))
-        v_layout.addWidget(self.my_sep())
-        v_layout.addSpacerItem(QSpacerItem(0, 10))
+#         v_layout.addSpacerItem(QSpacerItem(0, 10))
+#         v_layout.addWidget(self.my_sep())
+#         v_layout.addSpacerItem(QSpacerItem(0, 10))
 
-    def remove_btn_cmd(self):
-        self.removed.emit()
+#     def remove_btn_cmd(self):
+#         self.removed.emit()
 
-    def get_data(self):
-        try:
-            right_input_value = int(self.right_input.text().strip())
-            right_input_value = right_input_value - 5
-        except Exception as e:
-            return None
+#     def get_data(self):
+#         try:
+#             right_input_value = int(self.right_input.text().strip())
+#             right_input_value = right_input_value - 5
+#         except Exception as e:
+#             return None
         
-        left_input_value = self.left_input.text().strip()
-        if not left_input_value:
-            return None
+#         left_input_value = self.left_input.text().strip()
+#         if not left_input_value:
+#             return None
 
-        return {
-            "folder_name": left_input_value,
-            "file_size": right_input_value
-            }
+#         return {
+#             "folder_name": left_input_value,
+#             "file_size": right_input_value
+#             }
 
-    def my_sep(self):
-        sep = QFrame(parent=self)
-        sep.setFixedHeight(1)
-        sep.setStyleSheet("background-color: black;")
-        return sep
+#     def my_sep(self):
+#         sep = QFrame(parent=self)
+#         sep.setFixedHeight(1)
+#         sep.setStyleSheet("background-color: black;")
+#         return sep
 
 
-class FolderWid(QWidget):
-    removed = pyqtSignal()
+# class FolderWid(QWidget):
+#     removed = pyqtSignal()
 
-    def __init__(self, path: str, parent: QWidget = None):
-        super().__init__(parent)
-        self.path_ = path
+#     def __init__(self, path: str, parent: QWidget = None):
+#         super().__init__(parent)
+#         self.path_ = path
 
-        v_layout = QVBoxLayout()
-        v_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(v_layout)
+#         v_layout = QVBoxLayout()
+#         v_layout.setContentsMargins(0, 0, 0, 0)
+#         self.setLayout(v_layout)
 
-        h_wid = QWidget(parent=self)
-        v_layout.addWidget(h_wid)
+#         h_wid = QWidget(parent=self)
+#         v_layout.addWidget(h_wid)
 
-        h_layout = QHBoxLayout()
-        h_layout.setContentsMargins(0, 0, 0, 0)
-        h_wid.setLayout(h_layout)
+#         h_layout = QHBoxLayout()
+#         h_layout.setContentsMargins(0, 0, 0, 0)
+#         h_wid.setLayout(h_layout)
 
-        left_wid = QWidget(parent=self)
-        h_layout.addWidget(left_wid)
-        left_layout = QVBoxLayout()
-        left_layout.setContentsMargins(0, 0, 0, 0)
-        left_wid.setLayout(left_layout)
+#         left_wid = QWidget(parent=self)
+#         h_layout.addWidget(left_wid)
+#         left_layout = QVBoxLayout()
+#         left_layout.setContentsMargins(0, 0, 0, 0)
+#         left_wid.setLayout(left_layout)
 
-        left_lbl = QLabel(parent=self, text=f" Сжать ТОЛЬКО в этой папке")
-        left_layout.addWidget(left_lbl)
+#         left_lbl = QLabel(parent=self, text=f" Сжать ТОЛЬКО в этой папке")
+#         left_layout.addWidget(left_lbl)
 
-        path = os.sep + path.strip().strip(os.sep)
-        self.left_input = QLabel(text=os.path.basename(path))
-        self.left_input.setFixedHeight(30)
-        left_layout.addWidget(self.left_input)
+#         path = os.sep + path.strip().strip(os.sep)
+#         self.left_input = QLabel(text=os.path.basename(path))
+#         self.left_input.setFixedHeight(30)
+#         left_layout.addWidget(self.left_input)
 
-        right_wid = QWidget(parent=self)
-        h_layout.addWidget(right_wid, alignment=Qt.AlignmentFlag.AlignRight)
-        right_layout = QVBoxLayout()
-        right_layout.setContentsMargins(0, 0, 0, 0)
-        right_wid.setLayout(right_layout)
+#         right_wid = QWidget(parent=self)
+#         h_layout.addWidget(right_wid, alignment=Qt.AlignmentFlag.AlignRight)
+#         right_layout = QVBoxLayout()
+#         right_layout.setContentsMargins(0, 0, 0, 0)
+#         right_wid.setLayout(right_layout)
 
-        right_lbl = QLabel(parent=self, text=f" Уменьшить до kb")
-        right_layout.addWidget(right_lbl)
+#         right_lbl = QLabel(parent=self, text=f" Уменьшить до kb")
+#         right_layout.addWidget(right_lbl)
 
-        self.right_input = QLineEdit(parent=self)
-        self.right_input.setFixedHeight(30)
-        self.right_input.setFixedWidth(200)
-        self.right_input.setPlaceholderText("Размер в килобайтах")
-        right_layout.addWidget(self.right_input)
+#         self.right_input = QLineEdit(parent=self)
+#         self.right_input.setFixedHeight(30)
+#         self.right_input.setFixedWidth(200)
+#         self.right_input.setPlaceholderText("Размер в килобайтах")
+#         right_layout.addWidget(self.right_input)
 
-        self.right_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
-        QTimer.singleShot(500, lambda: self.right_input.setStyleSheet("padding-left: 5px;"))
+#         self.right_input.setStyleSheet("padding-left: 5px; background-color: #3b590d;")
+#         QTimer.singleShot(500, lambda: self.right_input.setStyleSheet("padding-left: 5px;"))
 
-        self.remove_btn = QPushButton(parent=self, text="Удалить")
-        self.remove_btn.setFixedWidth(200)
-        self.remove_btn.clicked.connect(self.remove_btn_cmd)
-        v_layout.addWidget(self.remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+#         self.remove_btn = QPushButton(parent=self, text="Удалить")
+#         self.remove_btn.setFixedWidth(200)
+#         self.remove_btn.clicked.connect(self.remove_btn_cmd)
+#         v_layout.addWidget(self.remove_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        v_layout.addSpacerItem(QSpacerItem(0, 10))
-        v_layout.addWidget(self.my_sep())
-        v_layout.addSpacerItem(QSpacerItem(0, 10))
+#         v_layout.addSpacerItem(QSpacerItem(0, 10))
+#         v_layout.addWidget(self.my_sep())
+#         v_layout.addSpacerItem(QSpacerItem(0, 10))
 
-    def remove_btn_cmd(self):
-        self.removed.emit()
+#     def remove_btn_cmd(self):
+#         self.removed.emit()
 
-    def get_data(self):
-        try:
-            right_input_value = int(self.right_input.text().strip())
-            # вычитаем 5кб от заданного размера на всякий случай
-            right_input_value = right_input_value - 5
-        except Exception as e:
-            return None
+#     def get_data(self):
+#         try:
+#             right_input_value = int(self.right_input.text().strip())
+#             # вычитаем 5кб от заданного размера на всякий случай
+#             right_input_value = right_input_value - 5
+#         except Exception as e:
+#             return None
         
-        left_input_value = self.path_.strip()
-        if not left_input_value:
-            return None
+#         left_input_value = self.path_.strip()
+#         if not left_input_value:
+#             return None
 
-        return {
-            "folder_name": left_input_value,
-            "file_size": right_input_value
-            }
+#         return {
+#             "folder_name": left_input_value,
+#             "file_size": right_input_value
+#             }
 
-    def my_sep(self):
-        sep = QFrame(parent=self)
-        sep.setFixedHeight(1)
-        sep.setStyleSheet("background-color: black;")
-        return sep
+#     def my_sep(self):
+#         sep = QFrame(parent=self)
+#         sep.setFixedHeight(1)
+#         sep.setStyleSheet("background-color: black;")
+#         return sep
 
 
 class WidStat(QWidget):
@@ -257,7 +257,7 @@ class WidStat(QWidget):
         self.setAcceptDrops(True)
 
         self.main_folder = None
-        self.stat_wids: list[StatWid | FolderWid] = []
+        self.stat_wids: list[StatWid] = []
 
         self.main_lay = QVBoxLayout()
         self.main_lay.setContentsMargins(0, 10, 0, 0)
@@ -357,7 +357,7 @@ class WidStat(QWidget):
             return
 
         if flag == FLAG_STAT:
-            wid = StatWid()
+            wid = StatWid(flag=FLAG_STAT)
 
         elif flag == FLAG_FOLDER:
 
@@ -365,7 +365,7 @@ class WidStat(QWidget):
                 dest = QFileDialog.getExistingDirectory(self)
 
             if dest:
-                wid = FolderWid(path=dest, parent=self)
+                wid = StatWid(flag=FLAG_FOLDER, dest=dest)
             else:
                 return
             
