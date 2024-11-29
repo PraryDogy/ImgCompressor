@@ -1,62 +1,37 @@
 import os
+from cfg import Cfg
 
-# Функция находит внутри Downloads
-# Все папки с именем ГО и выводит 100
-# Все папки с именем ХО и выводит 200
-# Папку Test и выводит 300
-# Папку Test 2 и выводит 400
-# Файл file.jpg и выводит 500
-# Файл file 2.jpg и выводит 500
-# Остальные файлы и папки в Downloads не трогает
+def process_files_and_folders(base_path, data: dict[list[dict]]):
+
+    named_folders: list[dict] = data.get(Cfg.NAMED_FOLDER)
+
+    for root, dirs, files in os.walk(base_path):
+        for dir in dirs:
+            
+            for data_dict in named_folders:
+                if dir == data_dict.get(Cfg.SRC):
+                    dir = os.path.join(root, dir)
+
+                    for i in os.listdir(dir):
+
+                        img: str = os.path.join(dir, i)
+
+                        if os.path.isfile(img) and img.endswith(Cfg.IMG_EXTS):
+                            print(img)
 
 
-src = "/Users/Loshkarev/Desktop/test"
 
+base_path = '/Users/Loshkarev/Desktop/test'
 
-"folder_name", "size"
+data = {
+    Cfg.NAMED_FOLDER: [
+        {'src': 'ХО', 'max_size_kb': 100},
+        {'src': 'ГО', 'max_size_kb': 50}
+    ],
+    Cfg.FILE_FOLDER: [
+      {'src': '/Users/Loshkarev/Desktop/test/Test 2', 'max_size_kb': 666}, 
+        {'src': '/Users/Loshkarev/Desktop/test/Test/file 1.jpg', 'max_size_kb': 123}
+    ]
+}
 
-
-named_folders = [
-    {"folder_name": "ГО", "size": 100},
-    {"folder_name": "ХО", "size": 200}
-]
-
-single_folders = [
-    {"folder_name": "/Users/Loshkarev/Desktop/test/Test 2", "size": 300},
-    {"folder_name": "/Users/Loshkarev/Desktop/test/Test", "size": 400}
-]
-
-single_files = [
-    {"folder_name": "/Users/Loshkarev/Desktop/test/single files/file 2.jpg", "size": 500},
-    {"folder_name": "/Users/Loshkarev/Desktop/test/file 1.jpg", "size": 600}
-]
-
-for root, dirs, files in os.walk(src):
-
-    for dir in dirs:
-        
-        for data in named_folders:
-            if dir == data.get("folder_name"):
-                print(os.path.join(root, dir))
-                ...
-
-    for dir in dirs:
-
-        src_ = os.path.join(root, dir)
-
-        for data in single_folders:
-
-            if src_ == data.get("folder_name"):
-                print(src_)
-                ...
-
-    for file in files:
-
-        src = os.path.join(root, file)
-
-        for data in single_files:
-
-            if src == data.get("folder_name"):
-
-                print(src)
-                ...
+process_files_and_folders(base_path, data)

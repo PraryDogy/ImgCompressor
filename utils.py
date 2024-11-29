@@ -149,20 +149,19 @@ class StatementTask(QThread):
         super().__init__()
 
         self.force_cancel.connect(self.stop_cmd)
-        self.root_dir = main_folder
-        self.data = data
 
+        self.main_folder = main_folder
+        self.data = data
         self.can_run = True
 
     def run(self):
-        print(self.data)
-        # self.process_images(main_folder=self.root_dir, data=self.data)
+        self.process_images()
         self.finished.emit()
 
     def stop_cmd(self):
         self.can_run = False
 
-    def process_images(self, main_folder: str, data: list[dict]):
+    def process_images(self):
         ... 
 
         # давай сначала найдем все изображения которые надо сжать и заодно
@@ -170,3 +169,6 @@ class StatementTask(QThread):
 
 
         # [ {"NAMED_FOLDER"}]
+
+        named_folders = self.data.get(Cfg.NAMED_FOLDER)
+

@@ -97,7 +97,7 @@ class StatWid(QWidget):
             return None
         
         if self.flag == Cfg.NAMED_FOLDER:
-            src = os.sep + self.left_wid.text().strip()
+            src = self.left_wid.text().strip()
 
         elif self.flag == Cfg.FILE_FOLDER:
             src = os.sep + self.dest.strip().strip(os.sep)
