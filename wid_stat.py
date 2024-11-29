@@ -11,19 +11,70 @@ from PyQt5.QtWidgets import (QFileDialog, QFrame, QHBoxLayout, QLabel,
 from utils import StatementTask
 
 
+FLAG_STAT = "stat"
+FLAG_FOLDER = "folder"
+FLAG_OTHER = "other"
+
+
+
 class StatWidBase(QWidget):
     removed = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, flag: str, dest: str = None):
         super().__init__()
-        ...
-        # гор виджет
-        # верт верт удалить
-
         self.main_lay = QHBoxLayout()
+        self.main_lay.setContentsMargins(0, 0, 0, 0)
+
+        if flag == FLAG_FOLDER and dest:
+            
+            self.dest = dest
+
+            dest_t = os.path.basename(
+                dest.strip().strip(os.sep)
+            )
+
+            dest_t = f"Папка: {dest_t}"
+            self.left_wid = QLabel(text=dest_t)
+
+        elif flag == FLAG_STAT:
+            
+            self.left_wid = QLineEdit(parent=self)
+            self.left_wid.setFixedHeight(30)
+            self.left_wid.setPlaceholderText("Имя папки")
+
+        elif flag == FLAG_OTHER:
+
+            self.left_wid = QLabel(text="Остальное")
 
 
+        self.main_lay.addWidget(self.left_wid)
 
+        self.right_wid = QLineEdit(parent=self)
+        self.right_wid.setFixedHeight(30)
+        self.right_wid.setFixedWidth(200)
+        self.right_wid.setPlaceholderText("Размер в килобайтах")
+        self.main_lay.addWidget(self.right_wid)
+
+        self.remove_btn = QPushButton(parent=self, text="x")
+        self.remove_btn.clicked.connect(self.removed.emit)
+        self.main_lay.addWidget(self.remove_btn)
+
+    def get_data(self):
+
+        max_size_kb = self.right_wid.text().strip()
+
+        if not isinstance(max_size_kb, int):
+            return None
+
+        src = self.left_wid.text().strip()
+
+        if not src:
+            return None
+
+        return {
+            "src": src,
+            "max_size_kb": max_size_kb - 5
+        }
 
 
 class StatWid(QWidget):
@@ -255,17 +306,17 @@ class WidStat(QWidget):
         self.btns_wid.setLayout(btns_lay)
 
         self.add_btn = QPushButton("Условие")
-        self.add_btn.clicked.connect(lambda: self.add_stat_wid(flag="stat"))
+        self.add_btn.clicked.connect(lambda: self.add_stat_wid(flag=FLAG_STAT))
         self.add_btn.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn)
 
         self.add_btn_two = QPushButton("Папка/файл")
-        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag="folder"))
+        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=FLAG_FOLDER))
         self.add_btn_two.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn_two)
         
         self.add_btn_two = QPushButton("Остальное")
-        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag="other"))
+        self.add_btn_two.clicked.connect(lambda: self.add_stat_wid(flag=FLAG_OTHER))
         self.add_btn_two.setFixedWidth(150)
         btns_lay.addWidget(self.add_btn_two)
 
@@ -305,10 +356,10 @@ class WidStat(QWidget):
             self.show_warning("Укажите главную папку")
             return
 
-        if flag == "stat":
+        if flag == FLAG_STAT:
             wid = StatWid()
 
-        elif flag == "folder":
+        elif flag == FLAG_FOLDER:
 
             if dest is None:
                 dest = QFileDialog.getExistingDirectory(self)
@@ -318,7 +369,7 @@ class WidStat(QWidget):
             else:
                 return
             
-        elif flag == "other":
+        elif flag == FLAG_OTHER:
             ...
 
         list_item = QListWidgetItem()
