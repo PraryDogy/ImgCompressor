@@ -215,14 +215,10 @@ class AppStatement(QWidget):
         self.browse_btn.setFixedWidth(200)
         browse_lay.addWidget(self.browse_btn)
 
+
+
         self.browse_label_path = QLabel('Можно перетянуть сюда главную папку')
         browse_lay.addWidget(self.browse_label_path)
-
-
-
-
-
-
 
         t = [
             "Сжатие по условиям: укажите главную папку",
@@ -237,12 +233,6 @@ class AppStatement(QWidget):
         t = "\n".join(t)
         self.description = QLabel(t)
         self.main_lay.addWidget(self.description)
-
-
-
-
-
-
 
 
         self.btns_wid = QWidget()
@@ -263,6 +253,7 @@ class AppStatement(QWidget):
         btns_lay.addWidget(self.add_btn_two)
         
         btns_lay.addStretch()
+
 
         self.list_widget = QListWidget(parent=self)
         self.list_widget.verticalScrollBar().setSingleStep(15)
