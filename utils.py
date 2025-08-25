@@ -1,3 +1,4 @@
+import io
 import os
 
 from PIL import Image
@@ -14,21 +15,43 @@ class Utils:
 
     @classmethod
     def resize_image(cls, img_src: str, max_size: int):
-        current_size_kb = int(os.path.getsize(img_src) // 1024.0)
+        if img_src.endswith((".PNG", ".png")):
+            cls._png(img_src, max_size)
+        else:
+            cls._jpg(img_src, max_size)
 
+    @classmethod
+    def _jpg(cls, img_src: str, max_size: int):
+        current_size_kb = int(os.path.getsize(img_src) // 1024.0)
         if current_size_kb <= max_size:
             return
-
         try:
             img = Image.open(img_src)
             quality = 95
-
             while True:
                 img.save(img_src, optimize=True, quality=quality)
                 if os.path.getsize(img_src) <= max_size * 1024 or quality <= 10:
                     break
                 quality -= 5
         except Exception:
+            pass
+
+    @classmethod
+    def _png(cls, img_src: str, max_size_kb: int, min_quality=10):
+        return
+        try:
+            if os.path.getsize(img_src) <= max_size_kb * 1024:
+                return
+            img = Image.open(img_src).convert("RGBA")
+            colors = 256
+            step = 2  # уменьшаем на 10 цветов за итерацию
+            while colors > 2:
+                img_tmp = img.convert("P", palette=Image.ADAPTIVE, colors=colors)
+                img_tmp.save(img_src, format="PNG", optimize=True)
+                if os.path.getsize(img_src) <= max_size_kb * 1024:
+                    break
+                colors -= step
+        except:
             pass
 
 

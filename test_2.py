@@ -1,5 +1,12 @@
-test = {"123": 100, "dfdsf": 200}
+from utils import Utils
+from PIL import Image
+
+a = '/Users/Loshkarev/Desktop/png/960х412 — копия.png'
+# b = Utils.resize_image(a, 300)
+
+# Image.open(a)
 
 
-for x, (k, v) in enumerate(test.items()):
-    print(x, k, v)
+img = Image.open(a)
+img = img.convert("RGBA")
+print(img.getcolors(maxcolors=256*256))
