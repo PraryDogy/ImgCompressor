@@ -24,7 +24,7 @@ class BadImgWin(QWidget):
 
         for real_size, desired_size, path in images:
             text = path
-            limit = 150
+            limit = 70
             real_size = int(real_size)
             if len(text) > limit:
                 text = "..." + text[-limit:]
