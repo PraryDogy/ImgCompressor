@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
                              QMessageBox, QPushButton, QSlider, QVBoxLayout,
                              QWidget)
 
+from bad_images_win import BadImgWin
 from cfg import Cfg
 from utils import StatementTask
 from win_process import ProcessWin
@@ -313,7 +314,11 @@ class WidStat(QWidget):
         self.win_.show()
         self.task_.start()
 
-    def finished_task(self):
+    def finished_task(self, bad_images: list[str]):
+        if bad_images:
+            self.bad_img_win = BadImgWin(bad_images)
+            self.bad_img_win.center_relative_parent(self.window())
+            self.bad_img_win.show()
         try:
             self.win_.deleteLater()
         except RuntimeError:

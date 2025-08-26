@@ -1,6 +1,7 @@
 import io
 import os
 
+import numpy as np
 from PIL import Image
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 
@@ -37,21 +38,15 @@ class Utils:
             pass
 
     @classmethod
-    def _png(cls, img_src: str, max_size_kb: int, min_quality=10):
-        try:
-            if os.path.getsize(img_src) <= max_size_kb * 1024:
-                return
-            img = Image.open(img_src).convert("RGBA")
-            colors = 512
-            step = 2
-            while colors > 2:
-                img_tmp = img.convert("P", palette=Image.ADAPTIVE, colors=colors)
-                img_tmp.save(img_src, format="PNG", optimize=True)
-                if os.path.getsize(img_src) <= max_size_kb * 1024:
-                    break
-                colors -= step
-        except:
-            pass
+    def _png(cls, img_src: str, max_size_kb: int):
+        img = Image.open(img_src).convert("RGB")
+        img_arr = np.array(img, dtype=np.uint8)
+        img_arr = ((img_arr >> 3) << 3).astype('uint8')
+        img_reduced = Image.fromarray(img_arr, "RGB")
+        img_reduced.save(img_src, optimize=True, compress_level=9)
+        if os.path.getsize(img_src) / 1024 > max_size_kb:
+            img_8bit = img_reduced.convert("P", palette=Image.ADAPTIVE, colors=256)
+            img_8bit.save(img_src, optimize=True)
 
 
 class NoStatementTask(QThread):
@@ -242,7 +237,7 @@ class FileProcessor:
     
 
 class StatementTask(QThread):
-    finished_ = pyqtSignal()
+    finished_ = pyqtSignal(list)
     feedback = pyqtSignal(dict)
 
     def __init__(self, main_folder: str, data: dict[list[dict]]):
@@ -255,11 +250,18 @@ class StatementTask(QThread):
     def run(self):
         self.compressor = FileProcessor(base_path=self.main_folder, data=self.data)
         self.compress_list: dict[str, int] = self.compressor.get_compress_list()
-
         self.total_ = len(self.compress_list)
-        
         self.compress_images()
-        self.finished_.emit()
+
+        bad_compress: list[tuple] = []
+
+        for path, desired_size in self.compress_list.items():
+            real_size = os.path.getsize(path) / 1024
+            if real_size > desired_size:
+                data = (real_size, desired_size, path)
+                bad_compress.append(data)
+
+        self.finished_.emit(bad_compress)
 
     def compress_images(self):
 
