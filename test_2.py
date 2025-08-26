@@ -1,12 +1,8 @@
 from utils import Utils
 from PIL import Image
+import os
 
-a = '/Users/Loshkarev/Desktop/png/960х412 — копия.png'
-# b = Utils.resize_image(a, 300)
-
-# Image.open(a)
-
-
-img = Image.open(a)
-img = img.convert("RGBA")
-print(img.getcolors(maxcolors=256*256))
+a = '/Volumes/Macintosh HD/Users/Loshkarev/Desktop/png/1472 х 600.png'
+b = Utils.resize_image(a, 300)
+size = int(os.path.getsize(a) / 1024)
+print(size, "kb")

@@ -38,13 +38,12 @@ class Utils:
 
     @classmethod
     def _png(cls, img_src: str, max_size_kb: int, min_quality=10):
-        return
         try:
             if os.path.getsize(img_src) <= max_size_kb * 1024:
                 return
             img = Image.open(img_src).convert("RGBA")
-            colors = 256
-            step = 2  # уменьшаем на 10 цветов за итерацию
+            colors = 512
+            step = 2
             while colors > 2:
                 img_tmp = img.convert("P", palette=Image.ADAPTIVE, colors=colors)
                 img_tmp.save(img_src, format="PNG", optimize=True)
