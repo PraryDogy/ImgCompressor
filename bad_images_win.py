@@ -19,7 +19,7 @@ class BadImgWin(QWidget):
         self.images = images
 
         desired_size = images[0][1]
-        title = QLabel(f"Не удалось достаточно сжать до {desired_size}кб:\n")
+        title = QLabel(f"Не удалось достаточно сжать до {desired_size + 5}кб:\n")
         main_lay.addWidget(title)
 
         for real_size, desired_size, path in images:
@@ -47,3 +47,8 @@ class BadImgWin(QWidget):
             self.setGeometry(geo)
         except (RuntimeError, Exception) as e:
             pass
+
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
+            self.deleteLater()
+        return super().keyPressEvent(a0)

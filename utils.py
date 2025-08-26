@@ -17,7 +17,8 @@ class Utils:
     @classmethod
     def resize_image(cls, img_src: str, max_size: int):
         if img_src.endswith((".PNG", ".png")):
-            cls._png(img_src, max_size)
+            if not Cfg.ignore_png:
+                cls._png(img_src, max_size)
         else:
             cls._jpg(img_src, max_size)
 
@@ -68,6 +69,7 @@ class NoStatementTask(QThread):
         self.can_run = False
 
     def run(self):
+        print(Cfg.ignore_png)
         self.get_total()
         self.bad_images: list[tuple] = []
         for single_data in self.data:
@@ -77,6 +79,8 @@ class NoStatementTask(QThread):
             if os.path.isdir(path):
                 self.walk_dir(path=path, max_size_kb=max_size_kb)
             else:
+                if Cfg.ignore_png and path.endswith((".png", ".PNG")):
+                    continue
                 self.compress_img(img_src=path, max_size_kb=max_size_kb)
                 real_size = os.path.getsize(path) / 1024
                 if real_size > max_size_kb:
@@ -86,24 +90,17 @@ class NoStatementTask(QThread):
         self.finished_.emit(self.bad_images)
 
     def get_total(self):
-
         for single_data in self.data:
-
             path, max_size_kb = single_data
-
             if not self.can_run:
                 return
-            
             if os.path.isfile(path):
                 self.total += 1
                 continue
-
             for root, dirs, files in os.walk(path):
                 for file in files:
-
                     if not self.can_run:
                         return
-
                     if file.endswith(Cfg.IMG_EXTS):
                         self.total += 1
 
@@ -113,7 +110,6 @@ class NoStatementTask(QThread):
                 img_src=img_src,
                 max_size=max_size_kb
             )
-
         except Exception as e:
             ...
 
@@ -127,14 +123,12 @@ class NoStatementTask(QThread):
         self.feedback.emit(data_)
 
     def walk_dir(self, path: str, max_size_kb: int):
-
         for root, dirs, files in os.walk(path):
-
             for file in files:
-
                 if not self.can_run:
                     return
-
+                if Cfg.ignore_png and file.endswith((".png", ".PNG")):
+                    continue
                 if file.endswith(Cfg.IMG_EXTS):
                     img_src = os.path.join(root, file)
                     try:
