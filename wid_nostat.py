@@ -34,7 +34,7 @@ class DynamicWidget(QWidget):
 
         self.input_wid = QLineEdit(parent=self)
         self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 2px;")
-        self.input_wid.setPlaceholderText("Размер в килобайтах")
+        self.input_wid.setPlaceholderText("Размер в кб")
         self.input_wid.setFixedSize(170, 30)
         h_lay.addWidget(self.input_wid)
 

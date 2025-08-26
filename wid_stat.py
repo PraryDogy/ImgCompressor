@@ -74,7 +74,7 @@ class StatWid(QWidget):
         self.right_wid = CustomLineEdit()
         self.right_wid.setFixedHeight(30)
         self.right_wid.setFixedWidth(200)
-        self.right_wid.setPlaceholderText("Размер в килобайтах")
+        self.right_wid.setPlaceholderText("Размер в кб")
         self.main_lay.addWidget(self.right_wid)
 
         self.remove_btn = QPushButton(text="x")
