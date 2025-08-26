@@ -1,10 +1,10 @@
 import os
-import subprocess
 import sys
 import traceback
 
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import (QApplication, QDialog, QPushButton, QTextEdit,
+                             QVBoxLayout)
 
 
 class System_:
@@ -18,8 +18,19 @@ class System_:
 
         SUMMARY_MSG = "\n".join([*ERROR, STARS, ABOUT])
         
-        script = "applescripts/error_msg.scpt"
-        subprocess.run(["osascript", script, SUMMARY_MSG])
+        d = QDialog()
+        d.setWindowTitle("Ошибка")
+        l = QVBoxLayout(d)
+
+        txt = QTextEdit()
+        txt.setReadOnly(True)
+        txt.setPlainText(SUMMARY_MSG)
+        l.addWidget(txt)
+
+        l.addWidget(QPushButton("Закрыть", clicked=d.close))
+        d.resize(500, 400)
+        d.setFocus()
+        d.exec_()
 
     @classmethod
     def set_plugin_path(cls) -> bool:
@@ -38,7 +49,7 @@ class System_:
 
 if System_.set_plugin_path():
     System_.set_excepthook()
-
+System_.set_excepthook()
 
 from app import App
 
