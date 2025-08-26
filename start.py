@@ -49,7 +49,6 @@ class System_:
 
 if System_.set_plugin_path():
     System_.set_excepthook()
-System_.set_excepthook()
 
 from app import App
 
