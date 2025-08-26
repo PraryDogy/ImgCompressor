@@ -50,7 +50,7 @@ class Utils:
 
 
 class NoStatementTask(QThread):
-    finished_ = pyqtSignal()
+    finished_ = pyqtSignal(list)
     feedback = pyqtSignal(dict)
 
     def __init__(self, data: list[tuple[str, int]]):
@@ -69,23 +69,21 @@ class NoStatementTask(QThread):
 
     def run(self):
         self.get_total()
-
+        self.bad_images: list[tuple] = []
         for single_data in self.data:
-
             if not self.can_run:
                 return
-
             path, max_size_kb = single_data
-
             if os.path.isdir(path):
-                self.walk_dir(
-                    path=path,
-                    max_size_kb=max_size_kb
-                )
+                self.walk_dir(path=path, max_size_kb=max_size_kb)
             else:
                 self.compress_img(img_src=path, max_size_kb=max_size_kb)
+                real_size = os.path.getsize(path) / 1024
+                if real_size > max_size_kb:
+                    data = (real_size, max_size_kb, path)
+                    self.bad_images.append(data)
 
-        self.finished_.emit()
+        self.finished_.emit(self.bad_images)
 
     def get_total(self):
 
@@ -140,10 +138,11 @@ class NoStatementTask(QThread):
                 if file.endswith(Cfg.IMG_EXTS):
                     img_src = os.path.join(root, file)
                     try:
-                        Utils.resize_image(
-                            img_src=img_src,
-                            max_size=max_size_kb
-                        )
+                        Utils.resize_image(img_src=img_src, max_size=max_size_kb)
+                        real_size = os.path.getsize(img_src) / 1024
+                        if real_size > max_size_kb:
+                            data = (real_size, max_size_kb, img_src)
+                            self.bad_images.append(data)
 
                     except Exception as e:
                         ...

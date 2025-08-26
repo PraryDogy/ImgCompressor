@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QLineEdit,
                              QListWidget, QListWidgetItem, QMessageBox,
                              QPushButton, QSpacerItem, QVBoxLayout, QWidget)
 
+from bad_images_win import BadImgWin
 from utils import NoStatementTask
 from win_process import ProcessWin
 
@@ -152,7 +153,11 @@ class WidNoStat(QWidget):
         self.win_.center_relative_parent(parent=self.window())
         self.win_.show()
 
-    def finished_task(self):
+    def finished_task(self, bad_images: list[tuple]):
+        if bad_images:
+            self.bad_img_win = BadImgWin(bad_images)
+            self.bad_img_win.center_relative_parent(self.window())
+            self.bad_img_win.show()
         self.win_.deleteLater()
 
     def show_warning(self, text: str):

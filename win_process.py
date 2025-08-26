@@ -21,7 +21,7 @@ class ProcessWin(QWidget):
         fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
         fl = fl  | Qt.WindowType.WindowCloseButtonHint
         self.setWindowFlags(fl)
-        self.setFixedSize(250, 150)
+        self.setFixedSize(250, 100)
 
         v_lay = QVBoxLayout()
         self.setLayout(v_lay)
